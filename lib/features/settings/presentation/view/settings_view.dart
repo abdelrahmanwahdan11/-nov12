@@ -270,6 +270,13 @@ class SettingsView extends ConsumerWidget {
                     ),
                     const Divider(height: 1),
                     ListTile(
+                      leading: const Icon(IconlyLight.work),
+                      title: Text(localization.translate('settings_to_projects')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/projects'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
                       leading: const Icon(IconlyLight.setting),
                       title: Text(localization.translate('settings_to_diagnostics')),
                       trailing: const Icon(IconlyLight.arrow_right_2),

@@ -4,6 +4,7 @@ import '../../models/cover.dart';
 import '../../models/download_task.dart';
 import '../../models/explore.dart';
 import '../../models/notification_message.dart';
+import '../../models/project.dart';
 import '../../models/vault_item.dart';
 import '../../models/voice.dart';
 
@@ -204,6 +205,121 @@ class MockData {
         artworkUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
         createdAt: now.subtract(const Duration(days: 4)),
         isFavorite: false,
+      ),
+    ];
+  }
+
+  static List<Project> projects() {
+    final now = DateTime.now();
+    return <Project>[
+      Project(
+        id: 'p1',
+        name: 'Aurora EP',
+        description: 'Bundle of neon-dream synth reinterpretations.',
+        status: ProjectStatus.active,
+        heroImageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d',
+        updatedAt: now.subtract(const Duration(hours: 2)),
+        entries: List<ProjectEntry>.unmodifiable(<ProjectEntry>[
+          ProjectEntry(
+            id: 'p1_track1',
+            coverId: 'c1',
+            title: 'Yellow (Aurora Mix)',
+            voiceName: 'The Weeknd',
+            artworkUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+            duration: const Duration(minutes: 3, seconds: 12),
+            updatedAt: now.subtract(const Duration(hours: 6)),
+            isCompleted: true,
+          ),
+          ProjectEntry(
+            id: 'p1_track2',
+            coverId: 'c4',
+            title: 'Starlight Bloom',
+            voiceName: 'Indie Muse',
+            artworkUrl: 'https://images.unsplash.com/photo-1487412912498-0447578fcca8',
+            duration: const Duration(minutes: 3, seconds: 40),
+            updatedAt: now.subtract(const Duration(hours: 3)),
+            isCompleted: false,
+          ),
+          ProjectEntry(
+            id: 'p1_track3',
+            coverId: 'c5',
+            title: 'Neon Rivers',
+            voiceName: 'Retro Legend',
+            artworkUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+            duration: const Duration(minutes: 2, seconds: 58),
+            updatedAt: now.subtract(const Duration(hours: 2)),
+            isCompleted: false,
+          ),
+        ]),
+        isPinned: true,
+        notes: 'Finalize mix for track 02 and export WAV masters.',
+        tags: const <String>['synthwave', 'night', 'neon'],
+      ),
+      Project(
+        id: 'p2',
+        name: 'Acoustic Sessions',
+        description: 'Warm unplugged takes for licensing pitches.',
+        status: ProjectStatus.ideation,
+        heroImageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d',
+        updatedAt: now.subtract(const Duration(days: 1, hours: 1)),
+        entries: List<ProjectEntry>.unmodifiable(<ProjectEntry>[
+          ProjectEntry(
+            id: 'p2_track1',
+            coverId: 'c6',
+            title: 'Gravity Sketch',
+            voiceName: 'Cartoon Star',
+            artworkUrl: 'https://images.unsplash.com/photo-1526498460520-4c246339dccb',
+            duration: const Duration(minutes: 2, seconds: 32),
+            updatedAt: now.subtract(const Duration(days: 1, hours: 5)),
+            isCompleted: false,
+          ),
+          ProjectEntry(
+            id: 'p2_track2',
+            coverId: 'c7',
+            title: 'Paper Planes',
+            voiceName: 'Doja Cat',
+            artworkUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
+            duration: const Duration(minutes: 3, seconds: 8),
+            updatedAt: now.subtract(const Duration(days: 1, hours: 2)),
+            isCompleted: false,
+          ),
+        ]),
+        isPinned: false,
+        notes: 'Draft lyric sheet translations before final take.',
+        tags: const <String>['acoustic', 'licensing'],
+      ),
+      Project(
+        id: 'p3',
+        name: 'Retro Remix Pack',
+        description: 'High-energy throwbacks for creators club drop.',
+        status: ProjectStatus.completed,
+        heroImageUrl: 'https://images.unsplash.com/photo-1524680319990-3d25302c0531',
+        updatedAt: now.subtract(const Duration(days: 3, hours: 4)),
+        entries: List<ProjectEntry>.unmodifiable(<ProjectEntry>[
+          ProjectEntry(
+            id: 'p3_track1',
+            coverId: 'c2',
+            title: 'Levitating (Retro Flip)',
+            voiceName: 'Doja Cat',
+            artworkUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
+            duration: const Duration(minutes: 2, seconds: 58),
+            updatedAt: now.subtract(const Duration(days: 3, hours: 6)),
+            isCompleted: true,
+          ),
+          ProjectEntry(
+            id: 'p3_track2',
+            coverId: 'c8',
+            title: 'Night Runner',
+            voiceName: 'Retro Legend',
+            artworkUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063',
+            duration: const Duration(minutes: 3, seconds: 26),
+            updatedAt: now.subtract(const Duration(days: 3, hours: 5)),
+            isCompleted: true,
+          ),
+        ]),
+        isPinned: false,
+        notes: 'Packaged and shared with partners (mock).',
+        tags: const <String>['retro', 'creator-pack'],
       ),
     ];
   }

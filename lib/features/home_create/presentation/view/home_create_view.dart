@@ -243,6 +243,46 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                 ),
               ),
               const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => context.push('/projects'),
+                child: GlassContainer(
+                  borderRadius: AppRadiusTokens.lg,
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppGradients.aurora,
+                        ),
+                        child: const Icon(IconlyBold.folder, size: 20, color: Colors.white),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              localization.translate('projects_shortcut_title'),
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              localization.translate('projects_shortcut_subtitle'),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(IconlyLight.arrow_right_circle, size: 24),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsetsDirectional.only(end: 12),

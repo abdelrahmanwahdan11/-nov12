@@ -21,7 +21,10 @@ import '../features/offline_vault/presentation/view/offline_vault_view.dart';
 import '../features/onboarding/presentation/view/onboarding_view.dart';
 import '../features/generation_queue/presentation/view/generation_queue_view.dart';
 import '../features/player/presentation/view/player_view.dart';
+import '../features/projects/presentation/view/projects_view.dart';
 import '../features/settings/presentation/view/settings_view.dart';
+import '../features/batch_covers/presentation/view/batch_covers_view.dart';
+import '../features/voice_studio/presentation/view/voice_studio_view.dart';
 import '../features/voice_catalog/presentation/view/voice_catalog_view.dart';
 import '../features/voice_catalog/presentation/view/voice_detail_view.dart';
 
@@ -116,9 +119,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OfflineVaultView(),
       ),
       GoRoute(
+        path: '/projects',
+        name: 'projects',
+        builder: (context, state) => const ProjectsView(),
+      ),
+      GoRoute(
         path: '/diagnostics',
         name: 'diagnostics',
         builder: (context, state) => const DiagnosticsView(),
+      ),
+      GoRoute(
+        path: '/batch',
+        name: 'batch_covers',
+        builder: (context, state) => const BatchCoversView(),
+      ),
+      GoRoute(
+        path: '/studio',
+        name: 'voice_studio',
+        builder: (context, state) => const VoiceStudioView(),
       ),
       GoRoute(
         path: '/player/:id',
