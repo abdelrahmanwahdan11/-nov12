@@ -7,6 +7,7 @@ import '../../../../core/theme/animations.dart';
 import '../../../../core/theme/gradients.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/atoms/glass_container.dart';
+import '../widgets/auth_visual_panel.dart';
 
 enum _AuthMode { login, signup, forgot }
 
@@ -81,6 +82,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
     final localization = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final isRtl = localization.isRtl;
+    final mediaPadding = MediaQuery.of(context).padding;
+    final topToolbarPadding = mediaPadding.top + kToolbarHeight;
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -89,6 +92,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Text(_titleForMode(localization)),
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
           flexibleSpace: Opacity(
             opacity: 0.9,
             child: Container(
@@ -96,85 +102,163 @@ class _AuthViewState extends ConsumerState<AuthView> {
             ),
           ),
         ),
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final horizontalPadding = constraints.maxWidth > 600 ? 120.0 : 24.0;
-              return SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    GlassContainer(
-                      borderRadius: AppRadiusTokens.xl,
-                      padding: const EdgeInsets.all(28),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _subtitleForMode(localization),
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 24),
-                          SegmentedButton<_AuthMode>(
-                            segments: [
-                              ButtonSegment<_AuthMode>(
-                                value: _AuthMode.login,
-                                icon: const Icon(IconlyLight.login),
-                                label: Text(localization.translate('login')),
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: AppGradients.background(theme.brightness),
+                ),
+              ),
+            ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isWide = constraints.maxWidth >= 960;
+                final double horizontalPadding =
+                    isWide ? AppSpacingTokens.base * 8 : AppSpacingTokens.base * 3;
+                final double bottomPadding =
+                    (isWide ? AppSpacingTokens.base * 6 : AppSpacingTokens.base * 4) + mediaPadding.bottom;
+                final double topPadding =
+                    topToolbarPadding + (isWide ? AppSpacingTokens.base * 5 : AppSpacingTokens.base * 4);
+
+                final formContent = Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        GlassContainer(
+                          borderRadius: AppRadiusTokens.xl,
+                          padding: const EdgeInsets.all(28),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _subtitleForMode(localization),
+                                style: theme.textTheme.titleMedium,
                               ),
-                              ButtonSegment<_AuthMode>(
-                                value: _AuthMode.signup,
-                                icon: const Icon(IconlyLight.add_user),
-                                label: Text(localization.translate('signup')),
+                              const SizedBox(height: AppSpacingTokens.base * 3),
+                              LayoutBuilder(
+                                builder: (context, segmentedConstraints) {
+                                  final segmented = SegmentedButton<_AuthMode>(
+                                    segments: [
+                                      ButtonSegment<_AuthMode>(
+                                        value: _AuthMode.login,
+                                        icon: const Icon(IconlyLight.login),
+                                        label: Text(localization.translate('login')),
+                                      ),
+                                      ButtonSegment<_AuthMode>(
+                                        value: _AuthMode.signup,
+                                        icon: const Icon(IconlyLight.add_user),
+                                        label: Text(localization.translate('signup')),
+                                      ),
+                                      ButtonSegment<_AuthMode>(
+                                        value: _AuthMode.forgot,
+                                        icon: const Icon(IconlyLight.password),
+                                        label: Text(localization.translate('forgot_password')),
+                                      ),
+                                    ],
+                                    showSelectedIcon: false,
+                                    selected: <_AuthMode>{_mode},
+                                    onSelectionChanged: (selection) => _switchMode(selection.first),
+                                    style: ButtonStyle(
+                                      padding: MaterialStateProperty.all(
+                                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      ),
+                                      visualDensity: VisualDensity.comfortable,
+                                      side: MaterialStateProperty.all(
+                                        BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
+                                      ),
+                                      foregroundColor: MaterialStateProperty.resolveWith(
+                                        (states) => states.contains(MaterialState.selected)
+                                            ? theme.colorScheme.onPrimary
+                                            : theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                      backgroundColor: MaterialStateProperty.resolveWith(
+                                        (states) => states.contains(MaterialState.selected)
+                                            ? theme.colorScheme.primary.withOpacity(0.18)
+                                            : theme.colorScheme.surface.withOpacity(0.2),
+                                      ),
+                                    ),
+                                  );
+
+                                  if (segmentedConstraints.maxWidth <= 420) {
+                                    return SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.zero,
+                                      child: IntrinsicWidth(child: segmented),
+                                    );
+                                  }
+
+                                  return segmented;
+                                },
                               ),
-                              ButtonSegment<_AuthMode>(
-                                value: _AuthMode.forgot,
-                                icon: const Icon(IconlyLight.password),
-                                label: Text(localization.translate('forgot_password')),
+                              const SizedBox(height: AppSpacingTokens.base * 3),
+                              AnimatedSwitcher(
+                                duration: AppAnimations.medium,
+                                transitionBuilder: (child, animation) => FadeTransition(
+                                  opacity: animation,
+                                  child: SizeTransition(sizeFactor: animation, child: child),
+                                ),
+                                child: _buildFormForMode(localization, theme),
                               ),
                             ],
-                            style: ButtonStyle(
-                              visualDensity: VisualDensity.comfortable,
-                              side: MaterialStateProperty.all(
-                                BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
-                              ),
-                              foregroundColor: MaterialStateProperty.resolveWith(
-                                (states) => states.contains(MaterialState.selected)
-                                    ? theme.colorScheme.onPrimary
-                                    : theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            selected: <_AuthMode>{_mode},
-                            onSelectionChanged: (selection) => _switchMode(selection.first),
-                            showSelectedIcon: false,
                           ),
-                          const SizedBox(height: 24),
-                          AnimatedSwitcher(
-                            duration: AppAnimations.medium,
-                            transitionBuilder: (child, animation) => FadeTransition(
-                              opacity: animation,
-                              child: SizeTransition(sizeFactor: animation, child: child),
-                            ),
-                            child: _buildFormForMode(localization, theme),
-                          ),
-                        ],
+                        ),
+                        const SizedBox(height: AppSpacingTokens.base * 4),
+                        _GuestAccessCard(
+                          onGuest: () {
+                            FocusScope.of(context).unfocus();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(localization.translate('snackbar_guest_mock'))),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+
+                final formScrollView = SingleChildScrollView(
+                  padding: EdgeInsetsDirectional.only(
+                    start: horizontalPadding,
+                    end: horizontalPadding,
+                    top: topPadding,
+                    bottom: bottomPadding,
+                  ),
+                  child: formContent,
+                );
+
+                if (!isWide) {
+                  return formScrollView;
+                }
+
+                final heroPadding = EdgeInsetsDirectional.only(
+                  start: AppSpacingTokens.base * 6,
+                  end: AppSpacingTokens.base * 2,
+                  top: topToolbarPadding + AppSpacingTokens.base * 3,
+                  bottom: bottomPadding,
+                );
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: heroPadding,
+                        child: AuthVisualPanel(
+                          localization: localization,
+                          isRtl: isRtl,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    _GuestAccessCard(
-                      onGuest: () {
-                        FocusScope.of(context).unfocus();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(localization.translate('snackbar_guest_mock'))),
-                        );
-                      },
-                    ),
+                    Expanded(child: formScrollView),
                   ],
-                ),
-              );
-            },
-          ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
