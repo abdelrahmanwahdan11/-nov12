@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/storage_service.dart';
 
 enum AudioQuality { kbps96, kbps128, kbps192, kbps320 }
@@ -10,27 +11,27 @@ enum ExportFormat { mp3, wav }
 enum AccentPalette { aurora, sapphire, sunset }
 
 extension AudioQualityX on AudioQuality {
-  String get label {
+  String label(AppLocalizations localization) {
     switch (this) {
       case AudioQuality.kbps96:
-        return '96 kbps';
+        return localization.translate('audio_quality_option_96');
       case AudioQuality.kbps128:
-        return '128 kbps';
+        return localization.translate('audio_quality_option_128');
       case AudioQuality.kbps192:
-        return '192 kbps';
+        return localization.translate('audio_quality_option_192');
       case AudioQuality.kbps320:
-        return '320 kbps';
+        return localization.translate('audio_quality_option_320');
     }
   }
 }
 
 extension ExportFormatX on ExportFormat {
-  String get label {
+  String label(AppLocalizations localization) {
     switch (this) {
       case ExportFormat.mp3:
-        return 'MP3';
+        return localization.translate('export_format_mp3');
       case ExportFormat.wav:
-        return 'WAV';
+        return localization.translate('export_format_wav');
     }
   }
 }

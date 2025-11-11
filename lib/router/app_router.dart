@@ -161,7 +161,7 @@ class _RootShellState extends State<_RootShell> {
                   backgroundColor: theme.colorScheme.tertiary,
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   label: Text(
-                    'PRO',
+                    localization.translate('badge_pro'),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppColorTokens.dark.bgBase,
                       fontWeight: FontWeight.w700,
@@ -175,7 +175,7 @@ class _RootShellState extends State<_RootShell> {
                   backgroundColor: theme.colorScheme.tertiary,
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   label: Text(
-                    'PRO',
+                    localization.translate('badge_pro'),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppColorTokens.dark.bgBase,
                       fontWeight: FontWeight.w700,

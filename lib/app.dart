@@ -33,6 +33,18 @@ class App extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        if (locale != null) {
+          return locale;
+        }
+        if (deviceLocale == null) {
+          return supportedLocales.first;
+        }
+        return supportedLocales.firstWhere(
+          (supported) => supported.languageCode == deviceLocale.languageCode,
+          orElse: () => supportedLocales.first,
+        );
+      },
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
         final clampedTextScaler = TextScaler.linear(mediaQuery.textScaleFactor.clamp(0.8, 1.3));

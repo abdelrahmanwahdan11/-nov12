@@ -24,4 +24,9 @@ class LocaleNotifier extends StateNotifier<Locale?> {
     state = locale;
     await _storage.writeString(StorageService.localeKey, locale.languageCode);
   }
+
+  Future<void> useSystemLocale() async {
+    state = null;
+    await _storage.remove(StorageService.localeKey);
+  }
 }

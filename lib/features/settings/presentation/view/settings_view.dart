@@ -24,6 +24,12 @@ class SettingsView extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final settings = ref.watch(settingsProvider);
     final isRtl = localization.isRtl;
+    final resolvedLocale = locale ?? Localizations.localeOf(context);
+    const languageOptions = <_LanguageChipOption>[
+      _LanguageChipOption(labelKey: 'language_system'),
+      _LanguageChipOption(labelKey: 'language_english', locale: Locale('en')),
+      _LanguageChipOption(labelKey: 'language_arabic', locale: Locale('ar')),
+    ];
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -79,14 +85,20 @@ class SettingsView extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 12,
-                      children: AppLocalizations.supportedLocales.map((localeOption) {
-                        final isSelected = locale?.languageCode == localeOption.languageCode;
-                        final label = localeOption.languageCode == 'ar' ? 'العربية' : 'English';
+                      children: languageOptions.map((option) {
+                        final isSelected = option.locale == null
+                            ? locale == null
+                            : resolvedLocale.languageCode == option.locale!.languageCode && locale != null;
                         return ChoiceChip(
-                          label: Text(label),
+                          label: Text(localization.translate(option.labelKey)),
                           selected: isSelected,
                           onSelected: (_) {
-                            unawaited(ref.read(localeProvider.notifier).update(localeOption));
+                            final notifier = ref.read(localeProvider.notifier);
+                            if (option.locale == null) {
+                              unawaited(notifier.useSystemLocale());
+                            } else {
+                              unawaited(notifier.update(option.locale!));
+                            }
                           },
                         );
                       }).toList(),
@@ -139,7 +151,7 @@ class SettingsView extends ConsumerWidget {
                           unawaited(ref.read(settingsProvider.notifier).updateAudioQuality(value));
                         }
                       },
-                      title: Text(quality.label),
+                      title: Text(quality.label(localization)),
                       secondary: const Icon(IconlyLight.voice),
                     );
                   }).toList(),
@@ -157,7 +169,7 @@ class SettingsView extends ConsumerWidget {
                       onChanged: (_) {
                         unawaited(ref.read(settingsProvider.notifier).updateExportFormat(format));
                       },
-                      title: Text(format.label),
+                      title: Text(format.label(localization)),
                     );
                   }).toList(),
                 ),
@@ -203,4 +215,11 @@ class _SectionTitle extends StatelessWidget {
       style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
     );
   }
+}
+
+class _LanguageChipOption {
+  const _LanguageChipOption({required this.labelKey, this.locale});
+
+  final String labelKey;
+  final Locale? locale;
 }

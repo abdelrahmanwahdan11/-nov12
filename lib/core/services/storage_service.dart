@@ -32,6 +32,10 @@ class StorageService {
   bool readBool(String key, {bool defaultValue = false}) {
     return _sharedPreferences.getBool(key) ?? defaultValue;
   }
+
+  Future<void> remove(String key) async {
+    await _sharedPreferences.remove(key);
+  }
 }
 
 final storageServiceProvider = Provider<StorageService>((ref) {
