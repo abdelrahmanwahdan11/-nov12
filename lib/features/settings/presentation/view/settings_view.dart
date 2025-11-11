@@ -285,6 +285,43 @@ class SettingsView extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
+              _SectionTitle(title: localization.translate('settings_advanced_section')),
+              const SizedBox(height: 12),
+              GlassContainer(
+                borderRadius: AppRadiusTokens.lg,
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(IconlyLight.voice),
+                      title: Text(localization.translate('settings_to_export_quality')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/export'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.send),
+                      title: Text(localization.translate('settings_to_referrals')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/referrals'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.shield_done),
+                      title: Text(localization.translate('settings_to_licensing')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/licensing'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.discovery),
+                      title: Text(localization.translate('settings_to_labs')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/labs'),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

@@ -16,6 +16,10 @@ import '../features/explore/presentation/view/explore_view.dart';
 import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
 import '../features/library/presentation/view/library_view.dart';
+import '../features/export_quality/presentation/view/export_quality_view.dart';
+import '../features/referrals/presentation/view/referrals_view.dart';
+import '../features/licensing_center/presentation/view/licensing_center_view.dart';
+import '../features/changelog_labs/presentation/view/changelog_labs_view.dart';
 import '../features/notifications_center/presentation/view/notifications_center_view.dart';
 import '../features/offline_vault/presentation/view/offline_vault_view.dart';
 import '../features/onboarding/presentation/view/onboarding_view.dart';
@@ -109,6 +113,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NotificationsCenterView(),
       ),
       GoRoute(
+        path: '/export',
+        name: 'export_quality',
+        builder: (context, state) => const ExportQualityView(),
+      ),
+      GoRoute(
         path: '/downloads',
         name: 'downloads',
         builder: (context, state) => const DownloadManagerView(),
@@ -124,6 +133,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProjectsView(),
       ),
       GoRoute(
+        path: '/referrals',
+        name: 'referrals',
+        builder: (context, state) => const ReferralsView(),
+      ),
+      GoRoute(
+        path: '/licensing',
+        name: 'licensing_center',
+        builder: (context, state) => const LicensingCenterView(),
+      ),
+      GoRoute(
         path: '/diagnostics',
         name: 'diagnostics',
         builder: (context, state) => const DiagnosticsView(),
@@ -137,6 +156,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/studio',
         name: 'voice_studio',
         builder: (context, state) => const VoiceStudioView(),
+      ),
+      GoRoute(
+        path: '/labs',
+        name: 'changelog_labs',
+        builder: (context, state) => const ChangelogLabsView(),
       ),
       GoRoute(
         path: '/player/:id',

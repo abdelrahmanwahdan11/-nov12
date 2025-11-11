@@ -23,12 +23,38 @@ class StorageService {
   static const String authDisplayNameKey = 'auth_display_name';
   static const String authEmailKey = 'auth_email';
   static const String authAvatarKey = 'auth_avatar';
+  static const String referralPointsKey = 'referral_points';
+  static const String referralFriendsKey = 'referral_friends';
+  static const String referralClaimedRewardsKey = 'referral_claimed_rewards';
+  static const String referralBoostKey = 'referral_boost';
+  static const String licensingConsentKey = 'licensing_consent';
+  static const String licensingReportsKey = 'licensing_reports';
+  static const String labsEnabledFlagsKey = 'labs_enabled_flags';
+  static const String labsAutoEnrollKey = 'labs_auto_enroll';
+  static const String loudnessTargetKey = 'loudness_target';
+  static const String sampleRateKey = 'sample_rate';
 
   Future<void> writeString(String key, String value) async {
     await _sharedPreferences.setString(key, value);
   }
 
   String? readString(String key) => _sharedPreferences.getString(key);
+
+  Future<void> writeInt(String key, int value) async {
+    await _sharedPreferences.setInt(key, value);
+  }
+
+  int readInt(String key, {int defaultValue = 0}) {
+    return _sharedPreferences.getInt(key) ?? defaultValue;
+  }
+
+  Future<void> writeDouble(String key, double value) async {
+    await _sharedPreferences.setDouble(key, value);
+  }
+
+  double readDouble(String key, {double defaultValue = 0}) {
+    return _sharedPreferences.getDouble(key) ?? defaultValue;
+  }
 
   Future<void> writeStringList(String key, List<String> values) async {
     await _sharedPreferences.setStringList(key, values);

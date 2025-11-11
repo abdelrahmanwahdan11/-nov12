@@ -3,8 +3,12 @@ import 'dart:ui';
 import '../../models/cover.dart';
 import '../../models/download_task.dart';
 import '../../models/explore.dart';
+import '../../models/lab_flag.dart';
+import '../../models/lab_highlight.dart';
+import '../../models/license_entry.dart';
 import '../../models/notification_message.dart';
 import '../../models/project.dart';
+import '../../models/referral_reward.dart';
 import '../../models/vault_item.dart';
 import '../../models/voice.dart';
 
@@ -589,5 +593,131 @@ class MockData {
         category: NotificationCategory.announcement,
       ),
     ];
+  }
+
+  static String referralLink() => 'https://aicovers.studio/invite/aurora';
+
+  static int referralBasePoints() => 240;
+
+  static int referralBaseFriends() => 6;
+
+  static bool referralBoostActive() => true;
+
+  static List<ReferralReward> referralRewards() {
+    return const <ReferralReward>[
+      ReferralReward(
+        id: 'reward_pro_month',
+        titleKey: 'referral_reward_pro_month_title',
+        descriptionKey: 'referral_reward_pro_month_desc',
+        pointsRequired: 180,
+        imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d',
+        badgeKey: 'referral_badge_most_popular',
+      ),
+      ReferralReward(
+        id: 'reward_voice_pack',
+        titleKey: 'referral_reward_voice_pack_title',
+        descriptionKey: 'referral_reward_voice_pack_desc',
+        pointsRequired: 120,
+        imageUrl: 'https://images.unsplash.com/photo-1504805572947-34fad45aed93',
+      ),
+      ReferralReward(
+        id: 'reward_waveform_theme',
+        titleKey: 'referral_reward_waveform_theme_title',
+        descriptionKey: 'referral_reward_waveform_theme_desc',
+        pointsRequired: 90,
+        imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
+      ),
+      ReferralReward(
+        id: 'reward_backgrounds',
+        titleKey: 'referral_reward_backgrounds_title',
+        descriptionKey: 'referral_reward_backgrounds_desc',
+        pointsRequired: 60,
+        imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+      ),
+    ];
+  }
+
+  static List<LicenseEntry> licensingEntries() {
+    return const <LicenseEntry>[
+      LicenseEntry(
+        id: 'personal_use',
+        titleKey: 'licensing_guideline_personal_title',
+        descriptionKey: 'licensing_guideline_personal_desc',
+        highlightKeys: <String>[
+          'licensing_guideline_personal_highlight_one',
+          'licensing_guideline_personal_highlight_two',
+        ],
+        illustrationUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2',
+      ),
+      LicenseEntry(
+        id: 'commercial_use',
+        titleKey: 'licensing_guideline_commercial_title',
+        descriptionKey: 'licensing_guideline_commercial_desc',
+        highlightKeys: <String>[
+          'licensing_guideline_commercial_highlight_one',
+          'licensing_guideline_commercial_highlight_two',
+        ],
+        illustrationUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518',
+      ),
+      LicenseEntry(
+        id: 'reporting',
+        titleKey: 'licensing_guideline_reporting_title',
+        descriptionKey: 'licensing_guideline_reporting_desc',
+        highlightKeys: <String>[
+          'licensing_guideline_reporting_highlight_one',
+          'licensing_guideline_reporting_highlight_two',
+        ],
+        illustrationUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+      ),
+    ];
+  }
+
+  static List<LabFlag> labFlags() {
+    return const <LabFlag>[
+      LabFlag(
+        id: 'alt_cta_gradient',
+        titleKey: 'labs_flag_alt_cta_title',
+        descriptionKey: 'labs_flag_alt_cta_desc',
+        badgeKey: 'labs_badge_visual',
+        enabled: true,
+      ),
+      LabFlag(
+        id: 'player_skin_v2',
+        titleKey: 'labs_flag_new_player_title',
+        descriptionKey: 'labs_flag_new_player_desc',
+        badgeKey: 'labs_badge_audio',
+        enabled: false,
+      ),
+      LabFlag(
+        id: 'queue_compact',
+        titleKey: 'labs_flag_queue_compact_title',
+        descriptionKey: 'labs_flag_queue_compact_desc',
+        badgeKey: 'labs_badge_productivity',
+        enabled: true,
+      ),
+    ];
+  }
+
+  static List<LabHighlight> labHighlights() {
+    return const <LabHighlight>[
+      LabHighlight(
+        id: 'highlight_queue_refresh',
+        titleKey: 'labs_highlight_queue_title',
+        descriptionKey: 'labs_highlight_queue_desc',
+        tagKey: 'labs_tag_new',
+        imageUrl: 'https://images.unsplash.com/photo-1487956382158-bb926046304a',
+      ),
+      LabHighlight(
+        id: 'highlight_pro_badge',
+        titleKey: 'labs_highlight_pro_badge_title',
+        descriptionKey: 'labs_highlight_pro_badge_desc',
+        tagKey: 'labs_tag_improved',
+        imageUrl: 'https://images.unsplash.com/photo-1485579149621-3123dd979885',
+      ),
+    ];
+  }
+
+  static DateTime labsLastUpdated() {
+    return DateTime.now().subtract(const Duration(days: 3, hours: 6));
   }
 }

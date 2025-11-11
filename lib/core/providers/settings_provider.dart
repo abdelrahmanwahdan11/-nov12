@@ -57,6 +57,8 @@ class SettingsState {
     required this.fadeEdges,
     required this.accent,
     required this.notificationsEnabled,
+    required this.sampleRate,
+    required this.loudnessTarget,
   });
 
   final AudioQuality audioQuality;
@@ -65,6 +67,8 @@ class SettingsState {
   final bool fadeEdges;
   final AccentPalette accent;
   final bool notificationsEnabled;
+  final int sampleRate;
+  final double loudnessTarget;
 
   SettingsState copyWith({
     AudioQuality? audioQuality,
@@ -73,6 +77,8 @@ class SettingsState {
     bool? fadeEdges,
     AccentPalette? accent,
     bool? notificationsEnabled,
+    int? sampleRate,
+    double? loudnessTarget,
   }) {
     return SettingsState(
       audioQuality: audioQuality ?? this.audioQuality,
@@ -81,6 +87,8 @@ class SettingsState {
       fadeEdges: fadeEdges ?? this.fadeEdges,
       accent: accent ?? this.accent,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      sampleRate: sampleRate ?? this.sampleRate,
+      loudnessTarget: loudnessTarget ?? this.loudnessTarget,
     );
   }
 }
@@ -93,6 +101,8 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
   final notifications = storage.readBool(StorageService.notificationsEnabledKey, defaultValue: true);
   final normalize = storage.readBool(StorageService.normalizeKey, defaultValue: true);
   final fade = storage.readBool(StorageService.fadeEdgesKey, defaultValue: true);
+  final sampleRate = storage.readInt(StorageService.sampleRateKey, defaultValue: 48000);
+  final loudness = storage.readDouble(StorageService.loudnessTargetKey, defaultValue: -14.0);
 
   AudioQuality parseQuality(String? value) {
     return AudioQuality.values.firstWhere(
@@ -124,6 +134,8 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
       fadeEdges: fade,
       accent: parseAccent(accentValue),
       notificationsEnabled: notifications,
+      sampleRate: sampleRate,
+      loudnessTarget: loudness,
     ),
   );
 });
@@ -161,5 +173,15 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> updateAccent(AccentPalette accent) async {
     state = state.copyWith(accent: accent);
     await _storage.writeString(StorageService.accentColorKey, accent.name);
+  }
+
+  Future<void> updateSampleRate(int value) async {
+    state = state.copyWith(sampleRate: value);
+    await _storage.writeInt(StorageService.sampleRateKey, value);
+  }
+
+  Future<void> updateLoudnessTarget(double value) async {
+    state = state.copyWith(loudnessTarget: value);
+    await _storage.writeDouble(StorageService.loudnessTargetKey, value);
   }
 }
