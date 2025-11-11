@@ -9,6 +9,7 @@ import '../core/providers/onboarding_provider.dart';
 import '../core/theme/tokens.dart';
 import '../core/widgets/atoms/glass_container.dart';
 import '../features/account_settings/presentation/view/account_settings_view.dart';
+import '../features/activity_center/presentation/view/activity_center_view.dart';
 import '../features/auth/presentation/view/auth_view.dart';
 import '../features/diagnostics/presentation/view/diagnostics_view.dart';
 import '../features/download_manager/presentation/view/download_manager_view.dart';
@@ -131,6 +132,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/projects',
         name: 'projects',
         builder: (context, state) => const ProjectsView(),
+      ),
+      GoRoute(
+        path: '/activity',
+        name: 'activity_center',
+        builder: (context, state) => const ActivityCenterView(),
       ),
       GoRoute(
         path: '/referrals',

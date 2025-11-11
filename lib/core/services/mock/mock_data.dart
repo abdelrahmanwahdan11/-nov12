@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../../models/activity_event.dart';
 import '../../models/cover.dart';
 import '../../models/download_task.dart';
 import '../../models/explore.dart';
@@ -719,5 +720,111 @@ class MockData {
 
   static DateTime labsLastUpdated() {
     return DateTime.now().subtract(const Duration(days: 3, hours: 6));
+  }
+
+  static List<ActivityEvent> activityEvents() {
+    final now = DateTime.now();
+    return <ActivityEvent>[
+      ActivityEvent(
+        id: 'evt_generate_c1',
+        type: ActivityEventType.generation,
+        title: 'Yellow cover rendered',
+        message: 'Finished processing in 02:52 with Doja Cat voice.',
+        timestamp: now.subtract(const Duration(minutes: 12)),
+        relatedId: 'c1',
+        previewImageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+        metadata: const <String, String>{
+          'voice': 'Doja Cat',
+          'duration': '3:12',
+          'quality': '320 kbps',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_download_c1',
+        type: ActivityEventType.download,
+        title: 'Cover saved offline',
+        message: 'Exported "Yellow" to Offline Vault in MP3 format.',
+        timestamp: now.subtract(const Duration(minutes: 8)),
+        relatedId: 'c1',
+        previewImageUrl: 'https://images.unsplash.com/photo-1485579149621-3123dd979885',
+        metadata: const <String, String>{
+          'format': 'MP3',
+          'size': '8.6 MB',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_project_pin',
+        type: ActivityEventType.project,
+        title: 'Project "Summer Tape" updated',
+        message: 'Pinned a new note and marked 2 tracks ready for mastering.',
+        timestamp: now.subtract(const Duration(hours: 1, minutes: 24)),
+        relatedId: 'proj_summer',
+        previewImageUrl: 'https://images.unsplash.com/photo-1470229538611-16ba8c7ffbd7',
+        metadata: const <String, String>{
+          'entries': '6 total',
+          'completed': '4 done',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_referral_bonus',
+        type: ActivityEventType.referral,
+        title: 'Referral boost activated',
+        message: 'Guest creator Mira redeemed your invite link (+150 pts).',
+        timestamp: now.subtract(const Duration(hours: 5, minutes: 10)),
+        previewImageUrl: 'https://images.unsplash.com/photo-1521312705-6cb0b1f1b9f4',
+        metadata: const <String, String>{
+          'total_points': '1,420 pts',
+          'active_boost': 'x2 24h',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_diagnostics_pass',
+        type: ActivityEventType.diagnostics,
+        title: 'Diagnostics snapshot clean',
+        message: 'Storage usage dropped to 42% and connectivity is stable.',
+        timestamp: now.subtract(const Duration(hours: 18, minutes: 32)),
+        previewImageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+        metadata: const <String, String>{
+          'storage_free': '58%',
+          'latency': '23 ms',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_library_added',
+        type: ActivityEventType.library,
+        title: 'Library grew by 4 covers',
+        message: 'Imported playlist "Lo-Fi Focus" into personal library.',
+        timestamp: now.subtract(const Duration(days: 1, hours: 3)),
+        previewImageUrl: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81a',
+        metadata: const <String, String>{
+          'playlist': 'Lo-Fi Focus',
+          'total_duration': '26 min',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_player_session',
+        type: ActivityEventType.player,
+        title: 'Listening session completed',
+        message: 'Looped "Electric Bloom" 3 times on mobile player.',
+        timestamp: now.subtract(const Duration(days: 2, hours: 6)),
+        previewImageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d',
+        metadata: const <String, String>{
+          'device': 'Pixel 7 Pro',
+          'repeat': 'Loop',
+        },
+      ),
+      ActivityEvent(
+        id: 'evt_share_history',
+        type: ActivityEventType.share,
+        title: 'Shared cover to socials',
+        message: 'Posted "Midnight Glow" preview to Instagram Stories.',
+        timestamp: now.subtract(const Duration(days: 3, hours: 4)),
+        previewImageUrl: 'https://images.unsplash.com/photo-1529158062015-cad636e69505',
+        metadata: const <String, String>{
+          'channel': 'Instagram',
+          'reach': 'Est. 2.1k',
+        },
+      ),
+    ];
   }
 }

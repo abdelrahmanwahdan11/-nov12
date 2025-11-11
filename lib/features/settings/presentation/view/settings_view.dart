@@ -286,6 +286,26 @@ class SettingsView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
+              _SectionTitle(title: localization.translate('settings_insights_section')),
+              const SizedBox(height: 12),
+              GlassContainer(
+                borderRadius: AppRadiusTokens.lg,
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  leading: const Icon(IconlyLight.activity),
+                  title: Text(localization.translate('settings_activity_center')),
+                  subtitle: Text(
+                    localization.translate('settings_activity_center_subtitle'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+                    ),
+                  ),
+                  trailing: const Icon(IconlyLight.arrow_right_2),
+                  onTap: () => context.push('/activity'),
+                ),
+              ),
+              const SizedBox(height: 24),
               _SectionTitle(title: localization.translate('settings_advanced_section')),
               const SizedBox(height: 12),
               GlassContainer(

@@ -33,6 +33,7 @@ class StorageService {
   static const String labsAutoEnrollKey = 'labs_auto_enroll';
   static const String loudnessTargetKey = 'loudness_target';
   static const String sampleRateKey = 'sample_rate';
+  static const String activityPinnedEventsKey = 'activity_pinned_events';
 
   Future<void> writeString(String key, String value) async {
     await _sharedPreferences.setString(key, value);
