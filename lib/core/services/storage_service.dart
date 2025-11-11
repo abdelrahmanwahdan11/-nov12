@@ -1,0 +1,33 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class StorageService {
+  StorageService({required SharedPreferences sharedPreferences})
+      : _sharedPreferences = sharedPreferences;
+
+  final SharedPreferences _sharedPreferences;
+
+  static const String themeModeKey = 'theme_mode';
+  static const String localeKey = 'locale';
+  static const String lastVoiceIdKey = 'last_voice_id';
+  static const String tipsDismissedKey = 'tips_dismissed';
+  static const String onboardingCompleteKey = 'onboarding_complete';
+
+  Future<void> writeString(String key, String value) async {
+    await _sharedPreferences.setString(key, value);
+  }
+
+  String? readString(String key) => _sharedPreferences.getString(key);
+
+  Future<void> writeBool(String key, bool value) async {
+    await _sharedPreferences.setBool(key, value);
+  }
+
+  bool readBool(String key, {bool defaultValue = false}) {
+    return _sharedPreferences.getBool(key) ?? defaultValue;
+  }
+}
+
+final storageServiceProvider = Provider<StorageService>((ref) {
+  throw UnimplementedError('StorageService must be overridden in bootstrap');
+});
