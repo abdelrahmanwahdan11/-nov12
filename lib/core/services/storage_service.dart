@@ -18,6 +18,10 @@ class StorageService {
   static const String fadeEdgesKey = 'fade_edges';
   static const String accentColorKey = 'accent_color';
   static const String notificationsEnabledKey = 'notifications_enabled';
+  static const String authTypeKey = 'auth_type';
+  static const String authDisplayNameKey = 'auth_display_name';
+  static const String authEmailKey = 'auth_email';
+  static const String authAvatarKey = 'auth_avatar';
 
   Future<void> writeString(String key, String value) async {
     await _sharedPreferences.setString(key, value);

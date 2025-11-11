@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/animations.dart';
 import '../../../../core/theme/gradients.dart';
 import '../../../../core/theme/tokens.dart';
@@ -212,11 +214,18 @@ class _AuthViewState extends ConsumerState<AuthView> {
                         ),
                         const SizedBox(height: AppSpacingTokens.base * 4),
                         _GuestAccessCard(
-                          onGuest: () {
+                          onGuest: () async {
                             FocusScope.of(context).unfocus();
+                            await ref.read(authSessionProvider.notifier).startGuestSession();
+                            if (!mounted) {
+                              return;
+                            }
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(localization.translate('snackbar_guest_mock'))),
                             );
+                            if (mounted) {
+                              context.go('/create');
+                            }
                           },
                         ),
                       ],
@@ -290,12 +299,20 @@ class _AuthViewState extends ConsumerState<AuthView> {
           theme: theme,
           onPasswordChanged: (value) => setState(() => _loginPasswordStrength = _evaluatePasswordStrength(value)),
           onToggleObscure: () => setState(() => _loginObscurePassword = !_loginObscurePassword),
-          onSubmit: () {
+          onSubmit: () async {
             if (_loginFormKey.currentState?.validate() ?? false) {
               FocusScope.of(context).unfocus();
+              final email = _loginEmailController.text.trim();
+              await ref.read(authSessionProvider.notifier).signIn(email: email);
+              if (!mounted) {
+                return;
+              }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(localization.translate('snackbar_login_mock'))),
               );
+              if (mounted) {
+                context.go('/create');
+              }
             }
           },
           onForgotPassword: () => _switchMode(_AuthMode.forgot),
@@ -316,12 +333,20 @@ class _AuthViewState extends ConsumerState<AuthView> {
           onPasswordChanged: (value) => setState(() => _signupPasswordStrength = _evaluatePasswordStrength(value)),
           onTogglePassword: () => setState(() => _signupObscurePassword = !_signupObscurePassword),
           onToggleConfirm: () => setState(() => _signupObscureConfirmPassword = !_signupObscureConfirmPassword),
-          onSubmit: () {
+          onSubmit: () async {
             if (_signupFormKey.currentState?.validate() ?? false) {
               FocusScope.of(context).unfocus();
+              final email = _signupEmailController.text.trim();
+              await ref.read(authSessionProvider.notifier).signUp(email: email);
+              if (!mounted) {
+                return;
+              }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(localization.translate('snackbar_signup_mock'))),
               );
+              if (mounted) {
+                context.go('/create');
+              }
             }
           },
           onGoToLogin: () => _switchMode(_AuthMode.login),

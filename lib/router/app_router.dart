@@ -8,6 +8,7 @@ import '../core/providers/locale_provider.dart';
 import '../core/providers/onboarding_provider.dart';
 import '../core/theme/tokens.dart';
 import '../core/widgets/atoms/glass_container.dart';
+import '../features/account_settings/presentation/view/account_settings_view.dart';
 import '../features/auth/presentation/view/auth_view.dart';
 import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
@@ -63,6 +64,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/queue',
         name: 'queue',
         builder: (context, state) => const GenerationQueueView(),
+      ),
+      GoRoute(
+        path: '/account',
+        name: 'account_settings',
+        builder: (context, state) => const AccountSettingsView(),
       ),
       GoRoute(
         path: '/settings',

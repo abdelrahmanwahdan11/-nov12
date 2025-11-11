@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/providers/app_theme_provider.dart';
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/locale_provider.dart';
 import '../../../../core/providers/settings_provider.dart';
 import '../../../../core/theme/animations.dart';
@@ -23,6 +26,7 @@ class SettingsView extends ConsumerWidget {
     final themeMode = ref.watch(appThemeModeProvider);
     final locale = ref.watch(localeProvider);
     final settings = ref.watch(settingsProvider);
+    final session = ref.watch(authSessionProvider);
     final isRtl = localization.isRtl;
     final resolvedLocale = locale ?? Localizations.localeOf(context);
     const languageOptions = <_LanguageChipOption>[
@@ -49,6 +53,49 @@ class SettingsView extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
             children: [
+              Text(
+                localization.translate('settings_account_section'),
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              GlassContainer(
+                borderRadius: AppRadiusTokens.lg,
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  shape: RoundedRectangleBorder(borderRadius: AppRadiusTokens.lg),
+                  onTap: () => context.push('/account'),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: CachedNetworkImage(
+                      imageUrl: session.avatarUrl,
+                      width: 52,
+                      height: 52,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        width: 52,
+                        height: 52,
+                        color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        width: 52,
+                        height: 52,
+                        color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+                        child: const Icon(IconlyLight.profile),
+                      ),
+                    ),
+                  ),
+                  title: Text(session.displayName, style: theme.textTheme.titleMedium),
+                  subtitle: Text(
+                    localization.translate('settings_account_manage'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const Icon(IconlyLight.arrow_right_2),
+                ),
+              ).animate().fadeIn(duration: AppAnimations.medium),
+              const SizedBox(height: 32),
               _SectionTitle(title: localization.translate('appearance')),
               const SizedBox(height: 12),
               GlassContainer(
