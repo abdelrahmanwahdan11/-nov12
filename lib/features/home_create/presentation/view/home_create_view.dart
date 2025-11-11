@@ -203,10 +203,50 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                 ),
               ),
               const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => context.push('/explore'),
+                child: GlassContainer(
+                  borderRadius: AppRadiusTokens.lg,
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppGradients.aurora,
+                        ),
+                        child: const Icon(IconlyBold.discovery, size: 20, color: Colors.white),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              localization.translate('explore_shortcut_title'),
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              localization.translate('explore_shortcut_subtitle'),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(IconlyLight.arrow_right_circle, size: 24),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsetsDirectional.only(end: 12),
-                  child: Row(
+                padding: const EdgeInsetsDirectional.only(end: 12),
+                child: Row(
                     children: _categoryKeys.map((key) {
                       final isSelected = key == _selectedCategoryKey;
                       final label = localization.translate(key);

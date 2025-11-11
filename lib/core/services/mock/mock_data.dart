@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import '../../models/cover.dart';
+import '../../models/explore.dart';
 import '../../models/voice.dart';
 
 class MockData {
@@ -198,6 +201,113 @@ class MockData {
         artworkUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
         createdAt: now.subtract(const Duration(days: 4)),
         isFavorite: false,
+      ),
+    ];
+  }
+
+  static List<ExploreSection> exploreSections() {
+    return <ExploreSection>[
+      ExploreSection(
+        id: 'trending',
+        titleKey: 'explore_section_trending',
+        subtitleKey: 'explore_section_trending_description',
+        items: <ExploreItem>[
+          ExploreItem(
+            id: 'trend_midnight_wave',
+            titleKey: 'explore_item_midnight_wave_title',
+            subtitleKey: 'explore_item_midnight_wave_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1524680319990-3d25302c0531',
+            voiceId: 'alt_03',
+            accentColor: const Color(0xFF6A3CFF),
+            highlightKeys: <String>['explore_badge_trending', 'explore_badge_energy'],
+          ),
+          ExploreItem(
+            id: 'trend_glass_reverb',
+            titleKey: 'explore_item_glass_reverb_title',
+            subtitleKey: 'explore_item_glass_reverb_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f',
+            voiceId: 'the_weeknd',
+            accentColor: const Color(0xFF00D1FF),
+            highlightKeys: <String>['explore_badge_trending', 'explore_badge_glass'],
+          ),
+          ExploreItem(
+            id: 'trend_cartoon_hype',
+            titleKey: 'explore_item_cartoon_hype_title',
+            subtitleKey: 'explore_item_cartoon_hype_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1526498460520-4c246339dccb',
+            voiceId: 'cartoon_01',
+            accentColor: const Color(0xFFF6FF7A),
+            highlightKeys: <String>['explore_badge_trending', 'explore_badge_story'],
+          ),
+        ],
+      ),
+      ExploreSection(
+        id: 'fresh',
+        titleKey: 'explore_section_new',
+        subtitleKey: 'explore_section_new_description',
+        items: <ExploreItem>[
+          ExploreItem(
+            id: 'fresh_sunrise_drive',
+            titleKey: 'explore_item_sunrise_drive_title',
+            subtitleKey: 'explore_item_sunrise_drive_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
+            voiceId: 'dojacat',
+            accentColor: const Color(0xFFFF8E8E),
+            highlightKeys: <String>['explore_badge_new', 'explore_badge_mood'],
+          ),
+          ExploreItem(
+            id: 'fresh_future_blossom',
+            titleKey: 'explore_item_future_blossom_title',
+            subtitleKey: 'explore_item_future_blossom_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
+            voiceId: 'alt_01',
+            accentColor: const Color(0xFF8EDBFF),
+            highlightKeys: <String>['explore_badge_new', 'explore_badge_dream'],
+          ),
+          ExploreItem(
+            id: 'fresh_radiant_steps',
+            titleKey: 'explore_item_radiant_steps_title',
+            subtitleKey: 'explore_item_radiant_steps_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1487412912498-0447578fcca8',
+            voiceId: 'alt_04',
+            accentColor: const Color(0xFFFFB86C),
+            highlightKeys: <String>['explore_badge_new', 'explore_badge_cinematic'],
+          ),
+        ],
+      ),
+      ExploreSection(
+        id: 'moods',
+        titleKey: 'explore_section_moods',
+        subtitleKey: 'explore_section_moods_description',
+        items: <ExploreItem>[
+          ExploreItem(
+            id: 'mood_midnight_relax',
+            titleKey: 'explore_item_midnight_relax_title',
+            subtitleKey: 'explore_item_midnight_relax_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1526948128573-703ee1aeb6fa',
+            voiceId: 'alt_02',
+            accentColor: const Color(0xFFFFD27F),
+            highlightKeys: <String>['explore_badge_mood', 'explore_badge_throwback'],
+          ),
+          ExploreItem(
+            id: 'mood_cosmic_focus',
+            titleKey: 'explore_item_cosmic_focus_title',
+            subtitleKey: 'explore_item_cosmic_focus_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format',
+            voiceId: 'alt_03',
+            accentColor: const Color(0xFF9D84FF),
+            highlightKeys: <String>['explore_badge_focus', 'explore_badge_mood'],
+          ),
+          ExploreItem(
+            id: 'mood_aurora_glow',
+            titleKey: 'explore_item_aurora_glow_title',
+            subtitleKey: 'explore_item_aurora_glow_subtitle',
+            imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d',
+            voiceId: 'alt_04',
+            accentColor: const Color(0xFF4CCBFF),
+            highlightKeys: <String>['explore_badge_mood', 'explore_badge_energy'],
+          ),
+        ],
       ),
     ];
   }

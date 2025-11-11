@@ -10,6 +10,7 @@ import '../core/theme/tokens.dart';
 import '../core/widgets/atoms/glass_container.dart';
 import '../features/account_settings/presentation/view/account_settings_view.dart';
 import '../features/auth/presentation/view/auth_view.dart';
+import '../features/explore/presentation/view/explore_view.dart';
 import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
 import '../features/library/presentation/view/library_view.dart';
@@ -66,6 +67,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/queue',
         name: 'queue',
         builder: (context, state) => const GenerationQueueView(),
+      ),
+      GoRoute(
+        path: '/explore',
+        name: 'explore',
+        builder: (context, state) => const ExploreView(),
       ),
       GoRoute(
         path: '/voices',
