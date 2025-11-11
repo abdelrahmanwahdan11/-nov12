@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../models/cover.dart';
+import '../services/mock/mock_audio_library.dart';
 
 class PlayerViewState {
   const PlayerViewState({
@@ -84,18 +85,8 @@ class PlayerController extends StateNotifier<PlayerViewState> {
   final AudioPlayer _player;
   final List<StreamSubscription<dynamic>> _subscriptions = <StreamSubscription<dynamic>>[];
 
-  static const Map<String, String> _voiceSamples = <String, String>{
-    'the_weeknd':
-        'https://cdn.pixabay.com/download/audio/2022/03/15/audio_05b464ee8a.mp3?filename=ambient-110997.mp3',
-    'dojacat':
-        'https://cdn.pixabay.com/download/audio/2022/10/11/audio_3d8bad3e7b.mp3?filename=glitch-future-bass-123003.mp3',
-    'cartoon_01':
-        'https://cdn.pixabay.com/download/audio/2023/03/07/audio_bc9f8e87dd.mp3?filename=chiptune-adventure-141937.mp3',
-  };
-
   Future<void> playCover(Cover cover) async {
-    final sampleUrl = _voiceSamples[cover.voiceId] ??
-        'https://cdn.pixabay.com/download/audio/2021/09/01/audio_1f14204e52.mp3?filename=future-hip-hop-ambient-12259.mp3';
+    final sampleUrl = MockAudioLibrary.sampleUrlForVoiceId(cover.voiceId);
     state = state.copyWith(activeCover: cover, position: Duration.zero, duration: cover.duration);
     await _player.setUrl(sampleUrl);
     await _player.play();

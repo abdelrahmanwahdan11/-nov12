@@ -17,6 +17,8 @@ import '../features/onboarding/presentation/view/onboarding_view.dart';
 import '../features/generation_queue/presentation/view/generation_queue_view.dart';
 import '../features/player/presentation/view/player_view.dart';
 import '../features/settings/presentation/view/settings_view.dart';
+import '../features/voice_catalog/presentation/view/voice_catalog_view.dart';
+import '../features/voice_catalog/presentation/view/voice_detail_view.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -64,6 +66,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/queue',
         name: 'queue',
         builder: (context, state) => const GenerationQueueView(),
+      ),
+      GoRoute(
+        path: '/voices',
+        name: 'voice_catalog',
+        builder: (context, state) => const VoiceCatalogView(),
+      ),
+      GoRoute(
+        path: '/voice/:id',
+        name: 'voice_details',
+        builder: (context, state) {
+          final voiceId = state.pathParameters['id'] ?? '';
+          return VoiceDetailView(voiceId: voiceId);
+        },
       ),
       GoRoute(
         path: '/account',

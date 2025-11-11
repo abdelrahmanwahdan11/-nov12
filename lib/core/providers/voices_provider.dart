@@ -8,10 +8,24 @@ final voicesProvider = Provider<List<Voice>>((ref) {
   return MockData.voices();
 });
 
+final voiceByIdProvider = Provider.family<Voice?, String>((ref, id) {
+  final voices = ref.watch(voicesProvider);
+  for (final voice in voices) {
+    if (voice.id == id) {
+      return voice;
+    }
+  }
+  return null;
+});
+
 final favoriteVoicesProvider = StateNotifierProvider<FavoriteVoicesNotifier, Set<String>>((ref) {
   final storage = ref.watch(storageServiceProvider);
-  final stored = storage.readString(StorageService.lastVoiceIdKey);
-  final initialFavorites = <String>{if (stored != null) stored};
+  final storedFavorites = storage.readStringList(StorageService.favoriteVoicesKey);
+  final storedLastVoice = storage.readString(StorageService.lastVoiceIdKey);
+  final initialFavorites = <String>{...storedFavorites};
+  if (storedLastVoice != null && storedLastVoice.isNotEmpty) {
+    initialFavorites.add(storedLastVoice);
+  }
   return FavoriteVoicesNotifier(storage, initialFavorites);
 });
 
@@ -29,8 +43,11 @@ class FavoriteVoicesNotifier extends StateNotifier<Set<String>> {
       favorites.add(voiceId);
     }
     state = favorites;
+    await _storage.writeStringList(StorageService.favoriteVoicesKey, favorites.toList());
     if (favorites.isNotEmpty) {
       await _storage.writeString(StorageService.lastVoiceIdKey, favorites.last);
+    } else {
+      await _storage.remove(StorageService.lastVoiceIdKey);
     }
   }
 }

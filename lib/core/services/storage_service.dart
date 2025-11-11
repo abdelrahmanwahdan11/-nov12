@@ -10,6 +10,7 @@ class StorageService {
   static const String themeModeKey = 'theme_mode';
   static const String localeKey = 'locale';
   static const String lastVoiceIdKey = 'last_voice_id';
+  static const String favoriteVoicesKey = 'favorite_voices';
   static const String tipsDismissedKey = 'tips_dismissed';
   static const String onboardingCompleteKey = 'onboarding_complete';
   static const String audioQualityKey = 'audio_quality';
@@ -28,6 +29,14 @@ class StorageService {
   }
 
   String? readString(String key) => _sharedPreferences.getString(key);
+
+  Future<void> writeStringList(String key, List<String> values) async {
+    await _sharedPreferences.setStringList(key, values);
+  }
+
+  List<String> readStringList(String key) {
+    return _sharedPreferences.getStringList(key) ?? <String>[];
+  }
 
   Future<void> writeBool(String key, bool value) async {
     await _sharedPreferences.setBool(key, value);

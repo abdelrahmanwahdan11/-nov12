@@ -12,6 +12,7 @@ import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/models/voice.dart';
 import '../../../../core/providers/queue_provider.dart';
 import '../../../../core/providers/voices_provider.dart';
+import '../../../../core/services/mock/mock_audio_library.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/animations.dart';
 import '../../../../core/theme/gradients.dart';
@@ -65,18 +66,7 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
   }
 
   Future<void> _playPreview(Voice voice) async {
-    const Map<String, String> samples = <String, String>{
-      'the_weeknd':
-          'https://cdn.pixabay.com/download/audio/2022/03/15/audio_05b464ee8a.mp3?filename=ambient-110997.mp3',
-      'dojacat':
-          'https://cdn.pixabay.com/download/audio/2022/10/11/audio_3d8bad3e7b.mp3?filename=glitch-future-bass-123003.mp3',
-      'cartoon_01':
-          'https://cdn.pixabay.com/download/audio/2023/03/07/audio_bc9f8e87dd.mp3?filename=chiptune-adventure-141937.mp3',
-    };
-
-    final sampleUrl = samples[voice.id] ??
-        'https://cdn.pixabay.com/download/audio/2021/09/01/audio_1f14204e52.mp3?filename=future-hip-hop-ambient-12259.mp3';
-
+    final sampleUrl = MockAudioLibrary.sampleUrlFromVoice(voice);
     await _previewPlayer.setUrl(sampleUrl);
     setState(() => _previewingVoiceId = voice.id);
     await _previewPlayer.play();
@@ -210,11 +200,11 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
-                  ),
                 ),
-                const SizedBox(height: 20),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+              ),
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                   padding: const EdgeInsetsDirectional.only(end: 12),
                   child: Row(
                     children: _categoryKeys.map((key) {
@@ -232,6 +222,15 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                         ),
                       );
                     }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton.icon(
+                    onPressed: () => context.push('/voices'),
+                    icon: const Icon(IconlyLight.discovery),
+                    label: Text(localization.translate('voice_catalog_open')),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -261,6 +260,17 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                         onToggleFavorite: () {
                           unawaited(ref.read(favoriteVoicesProvider.notifier).toggle(voice.id));
                         },
+                        onOpenDetails: () async {
+                          final selectedVoiceId = await context.push<String>('/voice/${voice.id}');
+                          if (!mounted) {
+                            return;
+                          }
+                          if (selectedVoiceId != null) {
+                            setState(() => _selectedVoiceId = selectedVoiceId);
+                            final storage = ref.read(storageServiceProvider);
+                            await storage.writeString(StorageService.lastVoiceIdKey, selectedVoiceId);
+                          }
+                        },
                       ).animate().fadeIn(duration: AppAnimations.medium);
                     },
                   ),
@@ -288,6 +298,7 @@ class _VoiceCard extends StatelessWidget {
     required this.onPreview,
     required this.onTap,
     required this.onToggleFavorite,
+    required this.onOpenDetails,
   });
 
   final Voice voice;
@@ -297,10 +308,12 @@ class _VoiceCard extends StatelessWidget {
   final VoidCallback onPreview;
   final VoidCallback onTap;
   final VoidCallback onToggleFavorite;
+  final VoidCallback onOpenDetails;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localization = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
@@ -321,9 +334,12 @@ class _VoiceCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl: voice.avatarUrl,
-                      fit: BoxFit.cover,
+                    Hero(
+                      tag: 'voice_${voice.id}',
+                      child: CachedNetworkImage(
+                        imageUrl: voice.avatarUrl,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Positioned.directional(
                       textDirection: Directionality.of(context),
@@ -348,7 +364,9 @@ class _VoiceCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              isPreviewing ? 'LIVE' : 'PREVIEW',
+                              localization.translate(
+                                isPreviewing ? 'voice_preview_live' : 'voice_preview_ready',
+                              ),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.w600,
@@ -418,6 +436,14 @@ class _VoiceCard extends StatelessWidget {
                           ),
                         )
                         .toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton(
+                      onPressed: onOpenDetails,
+                      child: Text(localization.translate('voice_catalog_view_details')),
+                    ),
                   ),
                 ],
               ),
