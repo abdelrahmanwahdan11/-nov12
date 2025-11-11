@@ -241,6 +241,43 @@ class SettingsView extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
+              _SectionTitle(title: localization.translate('settings_system_section')),
+              const SizedBox(height: 12),
+              GlassContainer(
+                borderRadius: AppRadiusTokens.lg,
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(IconlyLight.notification),
+                      title: Text(localization.translate('settings_to_notifications')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/notifications'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.arrow_down_2),
+                      title: Text(localization.translate('settings_to_downloads')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/downloads'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.folder),
+                      title: Text(localization.translate('settings_to_vault')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/vault'),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(IconlyLight.setting),
+                      title: Text(localization.translate('settings_to_diagnostics')),
+                      trailing: const Icon(IconlyLight.arrow_right_2),
+                      onTap: () => context.push('/diagnostics'),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

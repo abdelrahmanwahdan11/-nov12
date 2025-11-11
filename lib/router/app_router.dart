@@ -10,10 +10,14 @@ import '../core/theme/tokens.dart';
 import '../core/widgets/atoms/glass_container.dart';
 import '../features/account_settings/presentation/view/account_settings_view.dart';
 import '../features/auth/presentation/view/auth_view.dart';
+import '../features/diagnostics/presentation/view/diagnostics_view.dart';
+import '../features/download_manager/presentation/view/download_manager_view.dart';
 import '../features/explore/presentation/view/explore_view.dart';
 import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
 import '../features/library/presentation/view/library_view.dart';
+import '../features/notifications_center/presentation/view/notifications_center_view.dart';
+import '../features/offline_vault/presentation/view/offline_vault_view.dart';
 import '../features/onboarding/presentation/view/onboarding_view.dart';
 import '../features/generation_queue/presentation/view/generation_queue_view.dart';
 import '../features/player/presentation/view/player_view.dart';
@@ -95,6 +99,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         name: 'settings',
         builder: (context, state) => const SettingsView(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsCenterView(),
+      ),
+      GoRoute(
+        path: '/downloads',
+        name: 'downloads',
+        builder: (context, state) => const DownloadManagerView(),
+      ),
+      GoRoute(
+        path: '/vault',
+        name: 'vault',
+        builder: (context, state) => const OfflineVaultView(),
+      ),
+      GoRoute(
+        path: '/diagnostics',
+        name: 'diagnostics',
+        builder: (context, state) => const DiagnosticsView(),
       ),
       GoRoute(
         path: '/player/:id',

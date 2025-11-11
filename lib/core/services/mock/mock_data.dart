@@ -1,7 +1,10 @@
 import 'dart:ui';
 
 import '../../models/cover.dart';
+import '../../models/download_task.dart';
 import '../../models/explore.dart';
+import '../../models/notification_message.dart';
+import '../../models/vault_item.dart';
 import '../../models/voice.dart';
 
 class MockData {
@@ -308,6 +311,166 @@ class MockData {
             highlightKeys: <String>['explore_badge_mood', 'explore_badge_energy'],
           ),
         ],
+      ),
+    ];
+  }
+
+  static List<DownloadTask> downloads() {
+    final now = DateTime.now();
+    return <DownloadTask>[
+      DownloadTask(
+        id: 'download_aurora_mix',
+        coverId: 'c1',
+        title: 'Yellow (Aurora Mix)',
+        artist: 'Coldplay',
+        voiceName: 'The Weeknd',
+        artworkUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+        format: 'MP3',
+        sizeMb: 8.4,
+        duration: const Duration(minutes: 3, seconds: 12),
+        progress: 0.72,
+        status: DownloadStatus.downloading,
+        requestedAt: now.subtract(const Duration(minutes: 8)),
+        eta: const Duration(minutes: 1, seconds: 20),
+      ),
+      DownloadTask(
+        id: 'download_midnight_drive',
+        coverId: 'c2',
+        title: 'Levitating (Night Drive)',
+        artist: 'Dua Lipa',
+        voiceName: 'Doja Cat',
+        artworkUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
+        format: 'WAV',
+        sizeMb: 24.6,
+        duration: const Duration(minutes: 2, seconds: 58),
+        progress: 1,
+        status: DownloadStatus.completed,
+        requestedAt: now.subtract(const Duration(hours: 2, minutes: 12)),
+        eta: Duration.zero,
+        completedAt: now.subtract(const Duration(hours: 1, minutes: 51)),
+      ),
+      DownloadTask(
+        id: 'download_cosmic_fade',
+        coverId: 'c3',
+        title: 'Blinding Lights (Cosmic Fade)',
+        artist: 'The Weeknd',
+        voiceName: 'Studio Icon',
+        artworkUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+        format: 'MP3',
+        sizeMb: 9.1,
+        duration: const Duration(minutes: 3, seconds: 20),
+        progress: 0.18,
+        status: DownloadStatus.queued,
+        requestedAt: now.subtract(const Duration(minutes: 2)),
+        eta: const Duration(minutes: 3),
+      ),
+      DownloadTask(
+        id: 'download_retro_wave',
+        coverId: 'c4',
+        title: 'Retro Wave Skyline',
+        artist: 'Future Nostalgia',
+        voiceName: 'Retro Legend',
+        artworkUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063',
+        format: 'MP3',
+        sizeMb: 7.6,
+        duration: const Duration(minutes: 3, seconds: 48),
+        progress: 0.56,
+        status: DownloadStatus.paused,
+        requestedAt: now.subtract(const Duration(minutes: 15)),
+        eta: const Duration(minutes: 2, seconds: 10),
+      ),
+      DownloadTask(
+        id: 'download_stardust',
+        coverId: 'c5',
+        title: 'Stardust Echo',
+        artist: 'Aurora Collective',
+        voiceName: 'Cinematic Halo',
+        artworkUrl: 'https://images.unsplash.com/photo-1487956382158-bb926046304a',
+        format: 'WAV',
+        sizeMb: 28.4,
+        duration: const Duration(minutes: 4, seconds: 12),
+        progress: 0.34,
+        status: DownloadStatus.failed,
+        requestedAt: now.subtract(const Duration(hours: 3, minutes: 27)),
+        eta: const Duration(minutes: 4),
+        failureReasonKey: 'download_error_storage',
+      ),
+    ];
+  }
+
+  static List<VaultItem> vaultItems() {
+    final now = DateTime.now();
+    return <VaultItem>[
+      VaultItem(
+        id: 'vault_midnight_drive',
+        coverId: 'c2',
+        title: 'Levitating (Night Drive)',
+        artist: 'Dua Lipa',
+        voiceName: 'Doja Cat',
+        artworkUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
+        format: 'WAV',
+        sizeMb: 24.6,
+        duration: const Duration(minutes: 2, seconds: 58),
+        downloadedAt: now.subtract(const Duration(hours: 2)),
+      ),
+      VaultItem(
+        id: 'vault_aurora_mix',
+        coverId: 'c1',
+        title: 'Yellow (Aurora Mix)',
+        artist: 'Coldplay',
+        voiceName: 'The Weeknd',
+        artworkUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+        format: 'MP3',
+        sizeMb: 8.4,
+        duration: const Duration(minutes: 3, seconds: 12),
+        downloadedAt: now.subtract(const Duration(days: 1, hours: 6)),
+      ),
+      VaultItem(
+        id: 'vault_aurora_story',
+        coverId: 'c5',
+        title: 'Stardust Echo',
+        artist: 'Aurora Collective',
+        voiceName: 'Cinematic Halo',
+        artworkUrl: 'https://images.unsplash.com/photo-1487956382158-bb926046304a',
+        format: 'WAV',
+        sizeMb: 28.4,
+        duration: const Duration(minutes: 4, seconds: 12),
+        downloadedAt: now.subtract(const Duration(days: 3, hours: 2)),
+      ),
+    ];
+  }
+
+  static List<NotificationMessage> notifications() {
+    final now = DateTime.now();
+    return <NotificationMessage>[
+      NotificationMessage(
+        id: 'notif_download_complete',
+        titleKey: 'notification_download_complete_title',
+        bodyKey: 'notification_download_complete_body',
+        createdAt: now.subtract(const Duration(minutes: 5)),
+        category: NotificationCategory.download,
+        data: const <String, String>{
+          'title': 'Levitating (Night Drive)',
+          'format': 'WAV',
+        },
+      ),
+      NotificationMessage(
+        id: 'notif_queue_finished',
+        titleKey: 'notification_queue_ready_title',
+        bodyKey: 'notification_queue_ready_body',
+        createdAt: now.subtract(const Duration(hours: 3, minutes: 12)),
+        category: NotificationCategory.queue,
+        data: const <String, String>{
+          'voice': 'Studio Icon',
+          'cover': 'Blinding Lights (Cosmic Fade)',
+        },
+      ),
+      NotificationMessage(
+        id: 'notif_announcement',
+        titleKey: 'notification_new_feature_title',
+        bodyKey: 'notification_new_feature_body',
+        createdAt: now.subtract(const Duration(days: 1, hours: 2)),
+        category: NotificationCategory.announcement,
       ),
     ];
   }
