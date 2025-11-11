@@ -4,44 +4,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconly/iconly.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/providers/onboarding_provider.dart';
 import '../../../../core/theme/animations.dart';
+import '../../../../core/theme/gradients.dart';
+import '../../../../core/theme/tokens.dart';
+import '../../../../core/widgets/atoms/app_cta_button.dart';
+import '../../../../core/widgets/atoms/glass_container.dart';
 
 class OnboardingSlide {
   const OnboardingSlide({
     required this.titleKey,
     required this.subtitleKey,
     required this.lottieUrl,
-    required this.cta,
   });
 
   final String titleKey;
   final String subtitleKey;
   final String lottieUrl;
-  final String cta;
 }
 
 final _slides = <OnboardingSlide>[
   const OnboardingSlide(
-    titleKey: 'Create AI Covers',
-    subtitleKey: 'Paste a link, pick a voice, get magic.',
+    titleKey: 'onboarding_slide_create_title',
+    subtitleKey: 'onboarding_slide_create_subtitle',
     lottieUrl: 'https://assets10.lottiefiles.com/packages/lf20_music_wave.json',
-    cta: 'Get Started',
   ),
   const OnboardingSlide(
-    titleKey: 'Huge Voice Library',
-    subtitleKey: 'Musicians, characters, cartoons.',
+    titleKey: 'onboarding_slide_library_title',
+    subtitleKey: 'onboarding_slide_library_subtitle',
     lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_voice_ai.json',
-    cta: 'Next',
   ),
   const OnboardingSlide(
-    titleKey: 'Smooth Playback',
-    subtitleKey: 'Save, share, and enjoy.',
+    titleKey: 'onboarding_slide_playback_title',
+    subtitleKey: 'onboarding_slide_playback_subtitle',
     lottieUrl: 'https://assets1.lottiefiles.com/temp/player.json',
-    cta: 'Continue',
   ),
 ];
 
@@ -61,13 +61,20 @@ class _OnboardingViewState extends ConsumerState<OnboardingView> {
   void initState() {
     super.initState();
     _controller = PageController();
+    _startAutoPlay();
+  }
+
+  void _startAutoPlay() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
       final nextIndex = (_currentIndex + 1) % _slides.length;
-      _controller.animateToPage(
-        nextIndex,
-        duration: AppAnimations.medium,
-        curve: AppAnimations.defaultCurve,
-      );
+      if (mounted) {
+        _controller.animateToPage(
+          nextIndex,
+          duration: AppAnimations.medium,
+          curve: AppAnimations.defaultCurve,
+        );
+      }
     });
   }
 
@@ -81,96 +88,173 @@ class _OnboardingViewState extends ConsumerState<OnboardingView> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context);
-    final media = MediaQuery.of(context);
+    final theme = Theme.of(context);
+    final isRtl = localization.isRtl;
 
     return Directionality(
-      textDirection: localization.locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => _onFinish(context),
-                  child: Text(localization.translate('guest_mode')),
-                ),
-              ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _controller,
-                  onPageChanged: (value) => setState(() => _currentIndex = value),
-                  itemCount: _slides.length,
-                  itemBuilder: (context, index) {
-                    final slide = _slides[index];
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: media.size.width * 0.08),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Lottie.network(slide.lottieUrl, height: media.size.height * 0.32),
-                          const SizedBox(height: 24),
-                          Text(
-                            slide.titleKey,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-                          ).animate().fade(duration: AppAnimations.medium).slide(begin: const Offset(0, 0.05)),
-                          const SizedBox(height: 12),
-                          Text(
-                            slide.subtitleKey,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                          ),
-                          const SizedBox(height: 32),
-                          FilledButton(
-                            onPressed: () {
-                              if (index == _slides.length - 1) {
-                                _onFinish(context);
-                              } else {
-                                _controller.nextPage(duration: AppAnimations.medium, curve: AppAnimations.defaultCurve);
-                              }
-                            },
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.transparent,
+        body: DecoratedBox(
+          decoration: const BoxDecoration(gradient: AppGradients.aurora),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GlassContainer(
+                        borderRadius: AppRadiusTokens.sm,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(IconlyLight.shield_done, color: theme.colorScheme.onPrimary, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              localization.translate('cta_enable_notifications'),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                            child: Text(slide.cta),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _slides.length,
-                  (index) => AnimatedContainer(
-                    duration: AppAnimations.fast,
-                    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
-                    height: 8,
-                    width: _currentIndex == index ? 24 : 8,
-                    decoration: BoxDecoration(
-                      color: _currentIndex == index
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                      TextButton(
+                        onPressed: () => _complete(context),
+                        child: Text(
+                          localization.translate('guest_mode'),
+                          style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onPrimary),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: PageView.builder(
+                    controller: _controller,
+                    onPageChanged: (index) {
+                      setState(() => _currentIndex = index);
+                      _startAutoPlay();
+                    },
+                    itemCount: _slides.length,
+                    itemBuilder: (context, index) {
+                      final slide = _slides[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) {
+                            double offset = 0;
+                            if (_controller.hasClients && _controller.page != null) {
+                              offset = (_controller.page! - index) * 36;
+                            }
+                            return Transform.translate(
+                              offset: Offset(0, offset),
+                              child: child,
+                            );
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Lottie.network(
+                                  slide.lottieUrl,
+                                  height: 220,
+                                  repeat: true,
+                                ).animate().fade(duration: AppAnimations.slow).scale(
+                                      begin: const Offset(0.92, 0.92),
+                                      end: const Offset(1, 1),
+                                      curve: AppAnimations.defaultCurve,
+                                    ),
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                localization.translate(slide.titleKey),
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
+                              ).animate().fadeIn(duration: AppAnimations.medium).slideY(begin: 0.08),
+                              const SizedBox(height: 12),
+                              Text(
+                                localization.translate(slide.subtitleKey),
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                                ),
+                              ),
+                              const SizedBox(height: 36),
+                              AppCtaButton(
+                                label: localization.translate(
+                                  index == _slides.length - 1 ? 'cta_continue' : 'cta_next',
+                                ),
+                                leading: const Icon(IconlyBold.play, size: 20, color: Colors.black87),
+                                onPressed: () {
+                                  if (index == _slides.length - 1) {
+                                    _complete(context);
+                                  } else {
+                                    _controller.nextPage(
+                                      duration: AppAnimations.medium,
+                                      curve: AppAnimations.defaultCurve,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ...List.generate(
+                        _slides.length,
+                        (index) {
+                          final isActive = index == _currentIndex;
+                          return AnimatedContainer(
+                            duration: AppAnimations.fast,
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            height: 8,
+                            width: isActive ? 28 : 8,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: isActive
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onPrimary.withOpacity(0.35),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () => _complete(context),
+                        child: Text(
+                          localization.translate('action_skip'),
+                          style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onPrimary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _onFinish(BuildContext context) {
+  void _complete(BuildContext context) {
     ref.read(onboardingProvider.notifier).completeOnboarding();
     context.go('/create');
   }

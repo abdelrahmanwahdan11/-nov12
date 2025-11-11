@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconly/iconly.dart';
 
+import '../core/l10n/app_localizations.dart';
 import '../core/providers/locale_provider.dart';
 import '../core/providers/onboarding_provider.dart';
+import '../core/theme/tokens.dart';
+import '../core/widgets/atoms/glass_container.dart';
 import '../features/auth/presentation/view/auth_view.dart';
 import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
@@ -101,22 +105,74 @@ class _RootShellState extends State<_RootShell> {
   Widget build(BuildContext context) {
     final location = GoRouter.of(context).location;
     final currentIndex = _indexFromLocation(location);
+    final localization = AppLocalizations.of(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.transparent,
       body: widget.child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          final targetLocation = _locationFromIndex(index);
-          if (targetLocation != location) {
-            context.go(targetLocation);
-          }
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.library_music), label: 'Covers'),
-          NavigationDestination(icon: Icon(Icons.add_circle_outline), label: 'Create'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-        ],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: GlassContainer(
+          borderRadius: AppRadiusTokens.lg,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: NavigationBar(
+            selectedIndex: currentIndex,
+            backgroundColor: Colors.transparent,
+            indicatorColor: theme.colorScheme.primary.withOpacity(0.24),
+            onDestinationSelected: (index) {
+              final targetLocation = _locationFromIndex(index);
+              if (targetLocation != location) {
+                context.go(targetLocation);
+              }
+            },
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(IconlyLight.folder),
+                selectedIcon: const Icon(IconlyBold.folder),
+                label: localization.translate('tab_covers'),
+              ),
+              NavigationDestination(
+                icon: Badge(
+                  alignment: AlignmentDirectional.topEnd,
+                  backgroundColor: theme.colorScheme.tertiary,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  label: Text(
+                    'PRO',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppColorTokens.dark.bgBase,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  child: const Icon(IconlyLight.edit_square),
+                ),
+                selectedIcon: Badge(
+                  alignment: AlignmentDirectional.topEnd,
+                  backgroundColor: theme.colorScheme.tertiary,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  label: Text(
+                    'PRO',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppColorTokens.dark.bgBase,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  child: const Icon(IconlyBold.edit_square),
+                ),
+                label: localization.translate('tab_create'),
+              ),
+              NavigationDestination(
+                icon: const Icon(IconlyLight.time_circle),
+                selectedIcon: const Icon(IconlyBold.time_circle),
+                label: localization.translate('tab_history'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
