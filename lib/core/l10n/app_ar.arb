@@ -29,6 +29,8 @@
   "auth_hero_highlight_offline": "معالجة محلية أولاً بدون اتصال",
   "auth_hero_highlight_queue": "وقت وصول تقديري متكيّف + تحكم بالطابور",
   "auth_hero_highlight_library": "معرض أصوات بزجاجية فاخرة",
+  "auth_hero_indicator_format": "{current} من {total}",
+  "auth_hero_swipe_hint": "اسحب لاستكشاف التجربة",
   "guest_mode": "المتابعة كضيف",
   "auth_prompt_no_account": "مستخدم جديد؟ أنشئ حسابًا",
   "auth_prompt_have_account": "لديك حساب؟ سجّل الدخول",

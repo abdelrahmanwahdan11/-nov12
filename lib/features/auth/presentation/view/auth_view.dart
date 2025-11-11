@@ -7,6 +7,7 @@ import '../../../../core/theme/animations.dart';
 import '../../../../core/theme/gradients.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/atoms/glass_container.dart';
+import '../widgets/auth_layout_metrics.dart';
 import '../widgets/auth_visual_panel.dart';
 
 enum _AuthMode { login, signup, forgot }
@@ -82,7 +83,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
     final localization = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final isRtl = localization.isRtl;
-    final mediaPadding = MediaQuery.of(context).padding;
+    final mediaQuery = MediaQuery.of(context);
+    final mediaPadding = mediaQuery.padding;
+    final viewInsets = mediaQuery.viewInsets;
     final topToolbarPadding = mediaPadding.top + kToolbarHeight;
 
     return Directionality(
@@ -113,18 +116,12 @@ class _AuthViewState extends ConsumerState<AuthView> {
             ),
             LayoutBuilder(
               builder: (context, constraints) {
-                final bool isWide = constraints.maxWidth >= 960;
-                final double horizontalPadding =
-                    isWide ? AppSpacingTokens.base * 8 : AppSpacingTokens.base * 3;
-                final double bottomPadding =
-                    (isWide ? AppSpacingTokens.base * 6 : AppSpacingTokens.base * 4) + mediaPadding.bottom;
-                final double topPadding =
-                    topToolbarPadding + (isWide ? AppSpacingTokens.base * 5 : AppSpacingTokens.base * 4);
+                final metrics = AuthLayoutMetrics.resolve(mediaQuery, constraints);
 
                 final formContent = Align(
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
+                    constraints: BoxConstraints(maxWidth: metrics.formMaxWidth),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -139,7 +136,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                 style: theme.textTheme.titleMedium,
                               ),
                               const SizedBox(height: AppSpacingTokens.base * 3),
-                              LayoutBuilder(
+                          LayoutBuilder(
                                 builder: (context, segmentedConstraints) {
                                   final segmented = SegmentedButton<_AuthMode>(
                                     segments: [
@@ -163,6 +160,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                     selected: <_AuthMode>{_mode},
                                     onSelectionChanged: (selection) => _switchMode(selection.first),
                                     style: ButtonStyle(
+                                      minimumSize: MaterialStateProperty.all(const Size.fromHeight(50)),
+                                      shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                                      ),
+                                      textStyle: MaterialStateProperty.all(
+                                        theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+                                      ),
                                       padding: MaterialStateProperty.all(
                                         const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                       ),
@@ -221,39 +225,47 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 );
 
                 final formScrollView = SingleChildScrollView(
-                  padding: EdgeInsetsDirectional.only(
-                    start: horizontalPadding,
-                    end: horizontalPadding,
-                    top: topPadding,
-                    bottom: bottomPadding,
-                  ),
+                  padding: metrics.formPadding.add(EdgeInsets.only(bottom: viewInsets.bottom)),
                   child: formContent,
                 );
 
-                if (!isWide) {
+                if (!metrics.showHero) {
                   return formScrollView;
                 }
 
-                final heroPadding = EdgeInsetsDirectional.only(
-                  start: AppSpacingTokens.base * 6,
-                  end: AppSpacingTokens.base * 2,
-                  top: topToolbarPadding + AppSpacingTokens.base * 3,
-                  bottom: bottomPadding,
-                );
+                final heroAvailableHeight = constraints.maxHeight.isFinite
+                    ? constraints.maxHeight -
+                        metrics.heroPadding.resolve(Directionality.of(context)).vertical
+                    : double.infinity;
 
                 return Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
+                    Flexible(
+                      flex: metrics.heroFlex,
                       child: Padding(
-                        padding: heroPadding,
-                        child: AuthVisualPanel(
-                          localization: localization,
-                          isRtl: isRtl,
+                        padding: metrics.heroPadding,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: metrics.heroMaxWidth,
+                              maxHeight: heroAvailableHeight.isFinite
+                                  ? heroAvailableHeight.clamp(320, double.infinity).toDouble()
+                                  : double.infinity,
+                            ),
+                            child: AspectRatio(
+                              aspectRatio: metrics.heroAspectRatio,
+                              child: AuthVisualPanel(
+                                localization: localization,
+                                isRtl: isRtl,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    Expanded(child: formScrollView),
+                    Flexible(flex: metrics.formFlex, child: formScrollView),
                   ],
                 );
               },
@@ -410,12 +422,15 @@ class _LoginForm extends StatelessWidget {
     return Form(
       key: formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
             decoration: InputDecoration(
               labelText: localization.translate('label_email'),
               prefixIcon: const Icon(IconlyLight.message),
@@ -433,6 +448,8 @@ class _LoginForm extends StatelessWidget {
             controller: passwordController,
             obscureText: obscurePassword,
             onChanged: onPasswordChanged,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.password],
             decoration: InputDecoration(
               labelText: localization.translate('label_password'),
               prefixIcon: const Icon(IconlyLight.lock),
@@ -451,6 +468,7 @@ class _LoginForm extends StatelessWidget {
               }
               return null;
             },
+            onFieldSubmitted: (_) => onSubmit(),
           ),
           const SizedBox(height: AppSpacingTokens.base * 1.5),
           PasswordStrengthBar(
@@ -481,7 +499,8 @@ class _LoginForm extends StatelessWidget {
               child: Text(localization.translate('auth_prompt_no_account')),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -526,12 +545,15 @@ class _SignupForm extends StatelessWidget {
     return Form(
       key: formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
             decoration: InputDecoration(
               labelText: localization.translate('label_email'),
               prefixIcon: const Icon(IconlyLight.message),
@@ -549,6 +571,8 @@ class _SignupForm extends StatelessWidget {
             controller: passwordController,
             obscureText: obscurePassword,
             onChanged: onPasswordChanged,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.newPassword],
             decoration: InputDecoration(
               labelText: localization.translate('label_password'),
               prefixIcon: const Icon(IconlyLight.lock),
@@ -578,6 +602,8 @@ class _SignupForm extends StatelessWidget {
           TextFormField(
             controller: confirmController,
             obscureText: obscureConfirmPassword,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.newPassword],
             decoration: InputDecoration(
               labelText: localization.translate('label_confirm_password'),
               prefixIcon: const Icon(IconlyLight.password),
@@ -595,6 +621,7 @@ class _SignupForm extends StatelessWidget {
               }
               return null;
             },
+            onFieldSubmitted: (_) => onSubmit(),
           ),
           const SizedBox(height: AppSpacingTokens.base * 3),
           SizedBox(
@@ -611,7 +638,8 @@ class _SignupForm extends StatelessWidget {
               child: Text(localization.translate('auth_prompt_have_account')),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -642,12 +670,15 @@ class _ForgotForm extends StatelessWidget {
     return Form(
       key: formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.email],
             decoration: InputDecoration(
               labelText: localization.translate('label_email'),
               prefixIcon: const Icon(IconlyLight.message),
@@ -659,6 +690,7 @@ class _ForgotForm extends StatelessWidget {
               }
               return null;
             },
+            onFieldSubmitted: (_) => onSubmit(),
           ),
           const SizedBox(height: AppSpacingTokens.base * 3),
           SizedBox(
@@ -684,7 +716,8 @@ class _ForgotForm extends StatelessWidget {
               ),
             ],
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

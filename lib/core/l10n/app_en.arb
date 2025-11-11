@@ -29,6 +29,8 @@
   "auth_hero_highlight_offline": "Offline-first mock processing",
   "auth_hero_highlight_queue": "Adaptive ETA + queue controls",
   "auth_hero_highlight_library": "Glassmorphism voice gallery",
+  "auth_hero_indicator_format": "{current} / {total}",
+  "auth_hero_swipe_hint": "Swipe to preview the journey",
   "guest_mode": "Continue as Guest",
   "auth_prompt_no_account": "New here? Create an account",
   "auth_prompt_have_account": "Already have an account? Log in",

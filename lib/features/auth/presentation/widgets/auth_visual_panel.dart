@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 
 import '../../../../../core/l10n/app_localizations.dart';
 import '../../../../../core/theme/animations.dart';
@@ -62,6 +63,13 @@ class _AuthVisualPanelState extends State<AuthVisualPanel> {
   late final PageController _controller;
   Timer? _timer;
   int _currentIndex = 0;
+
+  String get _indicatorSemanticLabel {
+    final template = widget.localization.translate('auth_hero_indicator_format');
+    return template
+        .replaceAll('{current}', '${_currentIndex + 1}')
+        .replaceAll('{total}', '${_heroItems.length}');
+  }
 
   @override
   void initState() {
@@ -199,12 +207,25 @@ class _AuthVisualPanelState extends State<AuthVisualPanel> {
                           .map(
                             (key) => GlassContainer(
                               borderRadius: AppRadiusTokens.sm,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               borderOpacity: 0.18,
-                              child: Text(
-                                widget.localization.translate(key),
-                                style: theme.textTheme.labelMedium?.copyWith(color: Colors.white),
-                                textAlign: textAlign,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 240),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Icon(IconlyBold.tick_square, size: 18, color: Colors.white70),
+                                    const SizedBox(width: 10),
+                                    Flexible(
+                                      child: Text(
+                                        widget.localization.translate(key),
+                                        style: theme.textTheme.labelMedium?.copyWith(color: Colors.white),
+                                        textAlign: textAlign,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           )
@@ -213,21 +234,38 @@ class _AuthVisualPanelState extends State<AuthVisualPanel> {
                     const SizedBox(height: 36),
                     Align(
                       alignment: widget.isRtl ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        textDirection: widget.isRtl ? TextDirection.rtl : TextDirection.ltr,
-                        children: List.generate(
-                          _heroItems.length,
-                          (index) => AnimatedContainer(
-                            duration: AppAnimations.fast,
-                            width: index == _currentIndex ? 28 : 10,
-                            height: 6,
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              color: index == _currentIndex ? Colors.white : Colors.white24,
-                              borderRadius: BorderRadius.circular(999),
+                      child: Semantics(
+                        label: _indicatorSemanticLabel,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          textDirection: widget.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                          children: List.generate(
+                            _heroItems.length,
+                            (index) => AnimatedContainer(
+                              duration: AppAnimations.fast,
+                              width: index == _currentIndex ? 26 : 10,
+                              height: 6,
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: index == _currentIndex
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.32),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
                             ),
                           ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Align(
+                      alignment: widget.isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Text(
+                        widget.localization.translate('auth_hero_swipe_hint'),
+                        textAlign: textAlign,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: Colors.white70,
+                          letterSpacing: 0.35,
                         ),
                       ),
                     ),
