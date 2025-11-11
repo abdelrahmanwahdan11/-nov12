@@ -12,6 +12,12 @@ class StorageService {
   static const String lastVoiceIdKey = 'last_voice_id';
   static const String tipsDismissedKey = 'tips_dismissed';
   static const String onboardingCompleteKey = 'onboarding_complete';
+  static const String audioQualityKey = 'audio_quality';
+  static const String exportFormatKey = 'export_format';
+  static const String normalizeKey = 'normalize_audio';
+  static const String fadeEdgesKey = 'fade_edges';
+  static const String accentColorKey = 'accent_color';
+  static const String notificationsEnabledKey = 'notifications_enabled';
 
   Future<void> writeString(String key, String value) async {
     await _sharedPreferences.setString(key, value);

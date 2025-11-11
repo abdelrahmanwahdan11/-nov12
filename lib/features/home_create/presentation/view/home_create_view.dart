@@ -1,69 +1,23 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
+import '../../../../core/models/voice.dart';
+import '../../../../core/providers/queue_provider.dart';
+import '../../../../core/providers/voices_provider.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/animations.dart';
 import '../../../../core/theme/gradients.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/atoms/app_cta_button.dart';
 import '../../../../core/widgets/atoms/glass_container.dart';
-
-class _Voice {
-  const _Voice({
-    required this.id,
-    required this.name,
-    required this.categoryKey,
-    required this.avatarUrl,
-  });
-
-  final String id;
-  final String name;
-  final String categoryKey;
-  final String avatarUrl;
-}
-
-const _mockVoices = <_Voice>[
-  _Voice(
-    id: 'the_weeknd',
-    name: 'The Weeknd',
-    categoryKey: 'filter_musicians',
-    avatarUrl: 'https://picsum.photos/seed/weeknd/400',
-  ),
-  _Voice(
-    id: 'dojacat',
-    name: 'Doja Cat',
-    categoryKey: 'filter_musicians',
-    avatarUrl: 'https://picsum.photos/seed/doja/400',
-  ),
-  _Voice(
-    id: 'cartoon_01',
-    name: 'Cartoon Star',
-    categoryKey: 'filter_cartoons',
-    avatarUrl: 'https://picsum.photos/seed/cartoon/400',
-  ),
-  _Voice(
-    id: 'alt_01',
-    name: 'Indie Muse',
-    categoryKey: 'filter_hot',
-    avatarUrl: 'https://picsum.photos/seed/indie/400',
-  ),
-  _Voice(
-    id: 'alt_02',
-    name: 'Retro Legend',
-    categoryKey: 'filter_hot',
-    avatarUrl: 'https://picsum.photos/seed/retro/400',
-  ),
-  _Voice(
-    id: 'alt_03',
-    name: 'Studio Icon',
-    categoryKey: 'filter_musicians',
-    avatarUrl: 'https://picsum.photos/seed/icon/400',
-  ),
-];
 
 class HomeCreateView extends ConsumerStatefulWidget {
   const HomeCreateView({super.key});
@@ -74,36 +28,101 @@ class HomeCreateView extends ConsumerStatefulWidget {
 
 class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
   final TextEditingController _linkController = TextEditingController();
-  late final AudioPlayer _audioPlayer;
-  late final List<String> _categoryKeys;
+  final AudioPlayer _previewPlayer = AudioPlayer();
+  final FocusNode _linkFocusNode = FocusNode();
+
+  final List<String> _categoryKeys = <String>[
+    'filter_all',
+    'filter_hot',
+    'filter_musicians',
+    'filter_cartoons',
+  ];
 
   String _selectedCategoryKey = 'filter_all';
+  String? _selectedVoiceId;
   String? _previewingVoiceId;
+  Timer? _previewTimer;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
-    _categoryKeys = const [
-      'filter_all',
-      'filter_hot',
-      'filter_musicians',
-      'filter_cartoons',
-    ];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final storage = ref.read(storageServiceProvider);
+      final storedVoice = storage.readString(StorageService.lastVoiceIdKey);
+      if (storedVoice != null && mounted) {
+        setState(() => _selectedVoiceId = storedVoice);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _previewTimer?.cancel();
+    _previewPlayer.dispose();
     _linkController.dispose();
+    _linkFocusNode.dispose();
     super.dispose();
   }
 
-  List<_Voice> get _filteredVoices {
+  Future<void> _playPreview(Voice voice) async {
+    const Map<String, String> samples = <String, String>{
+      'the_weeknd':
+          'https://cdn.pixabay.com/download/audio/2022/03/15/audio_05b464ee8a.mp3?filename=ambient-110997.mp3',
+      'dojacat':
+          'https://cdn.pixabay.com/download/audio/2022/10/11/audio_3d8bad3e7b.mp3?filename=glitch-future-bass-123003.mp3',
+      'cartoon_01':
+          'https://cdn.pixabay.com/download/audio/2023/03/07/audio_bc9f8e87dd.mp3?filename=chiptune-adventure-141937.mp3',
+    };
+
+    final sampleUrl = samples[voice.id] ??
+        'https://cdn.pixabay.com/download/audio/2021/09/01/audio_1f14204e52.mp3?filename=future-hip-hop-ambient-12259.mp3';
+
+    await _previewPlayer.setUrl(sampleUrl);
+    setState(() => _previewingVoiceId = voice.id);
+    await _previewPlayer.play();
+    _previewTimer?.cancel();
+    _previewTimer = Timer(const Duration(seconds: 5), () {
+      _previewPlayer.stop();
+      if (mounted && _previewingVoiceId == voice.id) {
+        setState(() => _previewingVoiceId = null);
+      }
+    });
+  }
+
+  List<Voice> _filteredVoices(List<Voice> voices) {
     if (_selectedCategoryKey == 'filter_all') {
-      return _mockVoices;
+      return voices;
     }
-    return _mockVoices.where((voice) => voice.categoryKey == _selectedCategoryKey).toList();
+    return voices.where((voice) => voice.categoryKey == _selectedCategoryKey).toList();
+  }
+
+  Future<void> _submitJob(AppLocalizations localization) async {
+    final storage = ref.read(storageServiceProvider);
+    final storedVoice = storage.readString(StorageService.lastVoiceIdKey);
+    final voiceId = _selectedVoiceId ??
+        ref.read(voicesProvider).firstOrNull?.id ?? storedVoice;
+
+    if (voiceId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localization.translate('error_select_voice'))),
+      );
+      return;
+    }
+
+    final link = _linkController.text.trim();
+    if (link.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localization.translate('error_link_required'))),
+      );
+      _linkFocusNode.requestFocus();
+      return;
+    }
+
+    ref.read(queueProvider.notifier).enqueue(voiceId: voiceId, source: link);
+    if (!mounted) {
+      return;
+    }
+    context.push('/queue');
   }
 
   @override
@@ -111,22 +130,10 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
     final localization = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final isRtl = localization.isRtl;
+    final voices = ref.watch(voicesProvider);
+    final favorites = ref.watch(favoriteVoicesProvider);
 
-    final chips = _categoryKeys.map((key) {
-      final isSelected = key == _selectedCategoryKey;
-      final label = localization.translate(key);
-      return Padding(
-        padding: const EdgeInsetsDirectional.only(end: 12),
-        child: ChoiceChip(
-          label: Text(label),
-          selected: isSelected,
-          onSelected: (_) => setState(() => _selectedCategoryKey = key),
-          showCheckmark: false,
-        ),
-      );
-    }).toList();
-
-    final voices = _filteredVoices;
+    final filteredVoices = _filteredVoices(voices);
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -135,7 +142,7 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           titleSpacing: 24,
-          toolbarHeight: 88,
+          toolbarHeight: 92,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -190,51 +197,78 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
                   padding: EdgeInsets.zero,
                   child: TextField(
                     controller: _linkController,
+                    focusNode: _linkFocusNode,
                     decoration: InputDecoration(
                       hintText: localization.translate('search_hint'),
                       prefixIcon: const Icon(IconlyLight.paper_plus),
                       suffixIcon: IconButton(
-                        onPressed: _linkController.clear,
+                        onPressed: () {
+                          _linkController.clear();
+                        },
                         icon: const Icon(IconlyLight.close_square),
                       ),
                       border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(children: isRtl ? chips.reversed.toList() : chips),
+                  padding: const EdgeInsetsDirectional.only(end: 12),
+                  child: Row(
+                    children: _categoryKeys.map((key) {
+                      final isSelected = key == _selectedCategoryKey;
+                      final label = localization.translate(key);
+                      return Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 12),
+                        child: ChoiceChip(
+                          label: Text(label),
+                          selected: isSelected,
+                          onSelected: (_) {
+                            setState(() => _selectedCategoryKey = key);
+                          },
+                          showCheckmark: false,
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Expanded(
                   child: GridView.builder(
-                    padding: const EdgeInsets.only(bottom: 24),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.72,
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.88,
+                      mainAxisSpacing: 18,
+                      crossAxisSpacing: 18,
                     ),
-                    itemCount: voices.length,
+                    itemCount: filteredVoices.length,
                     itemBuilder: (context, index) {
-                      final voice = voices[index];
+                      final voice = filteredVoices[index];
+                      final isSelected = voice.id == _selectedVoiceId;
+                      final isFavorite = favorites.contains(voice.id);
                       final isPreviewing = voice.id == _previewingVoiceId;
                       return _VoiceCard(
                         voice: voice,
+                        isSelected: isSelected,
+                        isFavorite: isFavorite,
                         isPreviewing: isPreviewing,
-                        onPreview: () => _handlePreview(voice),
-                      );
+                        onPreview: () => _playPreview(voice),
+                        onTap: () {
+                          setState(() => _selectedVoiceId = voice.id);
+                        },
+                        onToggleFavorite: () {
+                          unawaited(ref.read(favoriteVoicesProvider.notifier).toggle(voice.id));
+                        },
+                      ).animate().fadeIn(duration: AppAnimations.medium);
                     },
-                  ).animate().fadeIn(duration: AppAnimations.medium).slideY(begin: 0.08, curve: AppAnimations.defaultCurve),
+                  ),
                 ),
+                const SizedBox(height: 16),
                 AppCtaButton(
                   label: localization.translate('create_new_cover'),
-                  leading: const Icon(IconlyBold.edit_square, size: 20),
-                  onPressed: () {},
+                  onPressed: () => _submitJob(localization),
                 ),
               ],
             ),
@@ -243,111 +277,163 @@ class _HomeCreateViewState extends ConsumerState<HomeCreateView> {
       ),
     );
   }
-
-  Future<void> _handlePreview(_Voice voice) async {
-    setState(() => _previewingVoiceId = voice.id);
-    await _audioPlayer.stop();
-    await _audioPlayer.setUrl('https://samplelib.com/lib/preview/mp3/sample-3s.mp3');
-    await _audioPlayer.play();
-    if (mounted) {
-      setState(() => _previewingVoiceId = null);
-    }
-  }
 }
 
-class _VoiceCard extends StatefulWidget {
+class _VoiceCard extends StatelessWidget {
   const _VoiceCard({
     required this.voice,
-    required this.onPreview,
+    required this.isSelected,
+    required this.isFavorite,
     required this.isPreviewing,
+    required this.onPreview,
+    required this.onTap,
+    required this.onToggleFavorite,
   });
 
-  final _Voice voice;
-  final VoidCallback onPreview;
+  final Voice voice;
+  final bool isSelected;
+  final bool isFavorite;
   final bool isPreviewing;
-
-  @override
-  State<_VoiceCard> createState() => _VoiceCardState();
-}
-
-class _VoiceCardState extends State<_VoiceCard> {
-  bool _isHovering = false;
+  final VoidCallback onPreview;
+  final VoidCallback onTap;
+  final VoidCallback onToggleFavorite;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: GestureDetector(
-        onTap: widget.onPreview,
-        child: AnimatedContainer(
-          duration: AppAnimations.fast,
-          transform: Matrix4.identity()..scale(_isHovering ? 1.02 : 1),
-          child: GlassContainer(
-            borderRadius: AppRadiusTokens.md,
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: AppRadiusTokens.md,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: widget.voice.avatarUrl,
-                          fit: BoxFit.cover,
-                        ),
-                        if (widget.isPreviewing)
-                          Container(
-                            color: Colors.black.withOpacity(0.45),
-                            alignment: Alignment.center,
-                            child: const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2.6),
-                            ),
-                          ),
-                      ],
+    return GestureDetector(
+      onTap: onTap,
+      child: GlassContainer(
+        borderRadius: AppRadiusTokens.lg,
+        padding: EdgeInsets.zero,
+        border: Border.all(
+          color: isSelected
+              ? theme.colorScheme.primary.withOpacity(0.6)
+              : theme.colorScheme.outlineVariant.withOpacity(0.4),
+          width: 1.2,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadiusTokens.lg)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: voice.avatarUrl,
+                      fit: BoxFit.cover,
                     ),
-                  ),
+                    Positioned.directional(
+                      textDirection: Directionality.of(context),
+                      top: 12,
+                      end: 12,
+                      child: IconButton(
+                        onPressed: onToggleFavorite,
+                        icon: Icon(
+                          isFavorite ? IconlyBold.heart : IconlyLight.heart,
+                          color: isFavorite ? theme.colorScheme.tertiary : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 12,
+                      left: 12,
+                      right: 12,
+                      child: GlassContainer(
+                        borderRadius: AppRadiusTokens.sm,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              isPreviewing ? 'LIVE' : 'PREVIEW',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            IconButton(
+                              iconSize: 18,
+                              icon: Icon(isPreviewing ? IconlyBold.voice : IconlyLight.voice),
+                              onPressed: onPreview,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.voice.name,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  AppLocalizations.of(context).translate(widget.voice.categoryKey),
-                  style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-                GlassContainer(
-                  borderRadius: AppRadiusTokens.sm,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  borderOpacity: 0.2,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(IconlyLight.play, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context).translate('label_preview'),
-                        style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                      Expanded(
+                        child: Text(
+                          voice.name,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      AnimatedContainer(
+                        duration: AppAnimations.medium,
+                        height: 10,
+                        width: 10,
+                        decoration: BoxDecoration(
+                          color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: theme.colorScheme.outlineVariant),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    voice.description,
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: voice.tags
+                        .map(
+                          (tag) => GlassContainer(
+                            borderRadius: AppRadiusTokens.xs,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child: Text(
+                              '#$tag',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
-      ),
+      ).animate().scale(
+            begin: const Offset(0.98, 0.98),
+            duration: AppAnimations.medium,
+            curve: AppAnimations.curve,
+          ),
     );
   }
 }
+
+extension<T> on List<T> {
+  T? get firstOrNull => isEmpty ? null : first;
+}
+

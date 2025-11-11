@@ -13,6 +13,9 @@ import '../features/history/presentation/view/history_view.dart';
 import '../features/home_create/presentation/view/home_create_view.dart';
 import '../features/library/presentation/view/library_view.dart';
 import '../features/onboarding/presentation/view/onboarding_view.dart';
+import '../features/generation_queue/presentation/view/generation_queue_view.dart';
+import '../features/player/presentation/view/player_view.dart';
+import '../features/settings/presentation/view/settings_view.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -55,6 +58,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const HistoryView(),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/queue',
+        name: 'queue',
+        builder: (context, state) => const GenerationQueueView(),
+      ),
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsView(),
+      ),
+      GoRoute(
+        path: '/player/:id',
+        name: 'player',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? 'c1';
+          return PlayerView(coverId: id);
+        },
       ),
     ],
     redirect: (context, state) {
